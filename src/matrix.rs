@@ -1,5 +1,8 @@
 pub mod matrix {
     use num::Num;
+    pub use std::ops::Add;
+
+    use crate::{CMatrix, CMatrixTrait};
 
     pub trait Matrix<T: Num + Default + Clone> {
         fn transpose(&mut self) -> &mut Self {
@@ -35,11 +38,53 @@ pub mod matrix {
 
             self.resize()
         }
-
         fn resize(&mut self) -> &mut Self;
+
+        fn multiplicate<M>(&mut self, rhs: M) -> CMatrix<T> 
+        where
+            M: Matrix<T>,
+        {
+
+            if self.get_columns() != rhs.get_rows() {
+                panic!("Can't multiplicate this matrices: self.columns != rhs.rows");
+            }
+
+            let mut v = vec![];
+
+            for i in 0..self.get_rows() {
+                if v.len() < self.get_rows() {
+                    v.push(vec![]);
+                }
+
+                for _j in 0..rhs.get_columns() {
+                    if v[i].len() < rhs.get_columns() {
+                        v[i].push(T::zero());
+                    }
+                }
+            }
+
+            println!("{}", v.len());
+            println!("{}", v[0].len());
+
+            for i in 0..self.get_rows() {
+                for j in 0..rhs.get_columns() {
+                    for k in 0..self.get_columns() {
+                        v[i][j] = v[i][j].clone() + self.get_elements()[i][k].clone() * rhs.get_elements()[k][j].clone();
+                    }
+                }
+            }
+
+            let mut c = CMatrix::one(self.get_rows(), rhs.get_columns());
+
+            c.set_elements(v);
+
+            c
+        }
 
         fn get_rows(&self) -> usize;
         fn get_columns(&self) -> usize;
-        fn get_elements(&mut self) -> &mut Vec<Vec<T>>;
+        fn get_elements(&self) -> Vec<Vec<T>>;
+
+        fn set_elements(&mut self, v: Vec<Vec<T>>) -> &mut Self;
     }
 }

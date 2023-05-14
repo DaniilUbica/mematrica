@@ -3,6 +3,9 @@ pub mod matrix3 {
     use num::Num;
     pub use crate::matrix23_trait::matrix23::Matrix23;
     pub use crate::matrix::matrix::Matrix;
+    use crate::cmatrix::cmatrix::CMatrix;
+    use std::ops::Add;
+    use core::ops::{Sub, Mul};
 
     #[derive(Debug, Default)]
     pub struct Matrix3<T: Num + Default + Copy> {
@@ -82,13 +85,8 @@ pub mod matrix3 {
 
     impl<T: Num + Default + Copy> Matrix<T> for Matrix3<T> {
         fn resize(&mut self) -> &mut Self {
-            if self.elems.len() != self.rows {
-                if self.elems.first().unwrap().len() != self.columns {
-                    let t = self.columns;
-                    self.columns = self.rows;
-                    self.rows = t;
-                }
-            }
+            self.rows = self.elems.len();
+            self.columns = self.elems.first().unwrap().len();
 
             self
         }
@@ -101,8 +99,117 @@ pub mod matrix3 {
             self.rows
         }
 
-        fn get_elements(&mut self) -> &mut Vec<Vec<T>> {
-            self.elems.as_mut()
+        fn get_elements(&self) -> Vec<Vec<T>> {
+            self.elems.clone()
+        }
+
+        fn set_elements(&mut self, v: Vec<Vec<T>>) -> &mut Self {
+            if self.columns == v.len() && self.columns == v.first().unwrap().len() {
+                self.elems = v;
+            }
+            else {
+                panic!("Can't make Matrix3 from this elements! Wrong size maybe?");
+            }
+            self
+        }
+    }
+
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy> Add<Matrix3<T>> for Matrix3<T> {
+        type Output = Matrix3<T>;
+
+        fn add(self, rhs: Matrix3<T>) -> Matrix3<T> {
+            let mut v = self.elems.clone();
+            let r = rhs.elems;
+
+            for i in 0..self.rows {
+                for j in 0..self.columns {
+                    v[i][j] = v[i][j] + r[i][j];
+                }
+            }
+
+            Matrix3 { rows: self.rows, columns: self.columns, elems: v }
+        }
+    }
+
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy> Add<CMatrix<T>> for Matrix3<T> {
+        type Output = Matrix3<T>;
+
+        fn add(self, rhs: CMatrix<T>) -> Matrix3<T> {
+            let mut v = self.elems.clone();
+
+            if self.columns == rhs.get_columns() && self.rows == rhs.get_rows() {
+                let r = rhs.get_elements();
+
+                for i in 0..self.rows {
+                    for j in 0..self.columns {
+                        v[i][j] = v[i][j] + r[i][j];
+                    }
+                }
+            }
+            else {
+                panic!("Can't fold this matrices: self.columns != rhs.columns || self.elems != rhs.elems");
+            }
+
+            Matrix3 { rows: self.rows, columns: self.columns, elems: v }
+        }
+    }
+
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy> Sub<Matrix3<T>> for Matrix3<T> {
+        type Output = Matrix3<T>;
+
+        fn sub(self, rhs: Matrix3<T>) -> Matrix3<T> {
+            let mut v = self.elems.clone();
+            let r = rhs.elems;
+
+            for i in 0..self.rows {
+                for j in 0..self.columns {
+                    v[i][j] = v[i][j] - r[i][j];
+                }
+            }
+
+            Matrix3 { rows: self.rows, columns: self.columns, elems: v }
+        }
+    }
+
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy> Sub<CMatrix<T>> for Matrix3<T> {
+        type Output = Matrix3<T>;
+
+        fn sub(self, rhs: CMatrix<T>) -> Matrix3<T> {
+            let mut v = self.elems.clone();
+
+            if self.columns == rhs.get_columns() && self.rows == rhs.get_rows() {
+                let r = rhs.get_elements();
+
+                for i in 0..self.rows {
+                    for j in 0..self.columns {
+                        v[i][j] = v[i][j] - r[i][j];
+                    }
+                }
+            }
+            else {
+                panic!("Can't fold this matrices: self.columns != rhs.columns || self.elems != rhs.elems");
+            }
+
+            Matrix3 { rows: self.rows, columns: self.columns, elems: v }
+        }
+    }
+
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy> Mul<Matrix3<T>> for Matrix3<T> {
+        type Output = Matrix3<T>;
+
+        fn mul(self, rhs: Matrix3<T>) -> Matrix3<T> {
+            let mut m = self;
+            m.multiplicate(rhs);
+            Matrix3 { rows: 3, columns: 3, elems: m.elems }
+        }
+    }
+
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy> Mul<CMatrix<T>> for Matrix3<T> {
+        type Output = CMatrix<T>;
+
+        fn mul(self, rhs: CMatrix<T>) -> CMatrix<T> {
+            let mut m = self;
+            m.multiplicate(rhs)
         }
     }
 }
