@@ -1,13 +1,15 @@
 pub mod matrix {
-    use num::Num;
+    use num::{Num, traits::Pow};
     pub use std::ops::Add;
 
     use crate::{CMatrix, CMatrixTrait};
 
-    pub trait Matrix<T: Num + Default + Clone> {
+    pub trait Matrix<T: Num + Default + Clone + PartialOrd> {
         fn transpose(&mut self) -> &mut Self {
             let r = self.get_rows();
             let c = self.get_columns();
+
+            println!("{}", self.get_columns());
 
             let v = self.get_elements();
             let mut t = vec![];
@@ -21,6 +23,7 @@ pub mod matrix {
             self.get_elements().clear();
 
             let mut q = vec![];
+            let mut a = vec![];
 
             let mut i = 0;
             let mut j = 0;
@@ -30,13 +33,13 @@ pub mod matrix {
                     i += c;
                 }
                 j += 1;
-                self.get_elements().push(q.clone());
+                a.push(q.clone());
                 q.clear();
                 i = 0;
                 i += j
             }
 
-            self.resize()
+            self.set_elements(a)
         }
         fn resize(&mut self) -> &mut Self;
 
@@ -62,9 +65,6 @@ pub mod matrix {
                     }
                 }
             }
-
-            println!("{}", v.len());
-            println!("{}", v[0].len());
 
             for i in 0..self.get_rows() {
                 for j in 0..rhs.get_columns() {

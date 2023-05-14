@@ -7,20 +7,20 @@ pub mod matrix2 {
     use core::ops::{Sub, Mul};
 
     #[derive(Debug, Default)]
-    pub struct Matrix2<T: Num + Default + Copy> {
+    pub struct Matrix2<T: Num + Default + Copy + PartialOrd> {
         rows: usize,
         columns: usize,
         elems: Vec<Vec<T>>,
     }
 
-    impl<T: Num + Default + Copy> Matrix2<T> {
+    impl<T: Num + Default + Copy + PartialOrd> Matrix2<T> {
         pub fn new(m11: T, m12: T, m21: T, m22: T) -> Matrix2<T> {
             let e = vec![vec![m11, m12], vec![m21, m22]];
             Matrix2 { rows: 2, columns: 2, elems: e }
         }
     }
 
-    impl<T: Num + Default + Copy> Matrix23<T> for Matrix2<T> {
+    impl<T: Num + Default + Copy + PartialOrd> Matrix23<T> for Matrix2<T> {
         fn zero() -> Self {
             let e = vec![vec![T::zero(), T::zero()], vec![T::zero(), T::zero()]];
             Matrix2 { rows: 2, columns: 2, elems: e }
@@ -67,7 +67,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Num + Default + Copy> Matrix<T> for Matrix2<T> {
+    impl<T: Num + Default + Copy + PartialOrd> Matrix<T> for Matrix2<T> {
         fn resize(&mut self) -> &mut Self {
             self.rows = self.elems.len();
             self.columns = self.elems.first().unwrap().len();
@@ -98,7 +98,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy> Add<Matrix2<T>> for Matrix2<T> {
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd> Add<Matrix2<T>> for Matrix2<T> {
         type Output = Matrix2<T>;
 
         fn add(self, rhs: Matrix2<T>) -> Matrix2<T> {
@@ -115,7 +115,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy> Add<CMatrix<T>> for Matrix2<T> {
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd> Add<CMatrix<T>> for Matrix2<T> {
         type Output = Matrix2<T>;
 
         fn add(self, rhs: CMatrix<T>) -> Matrix2<T> {
@@ -138,7 +138,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy> Sub<Matrix2<T>> for Matrix2<T> {
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd> Sub<Matrix2<T>> for Matrix2<T> {
         type Output = Matrix2<T>;
 
         fn sub(self, rhs: Matrix2<T>) -> Matrix2<T> {
@@ -155,7 +155,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy> Sub<CMatrix<T>> for Matrix2<T> {
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd> Sub<CMatrix<T>> for Matrix2<T> {
         type Output = Matrix2<T>;
 
         fn sub(self, rhs: CMatrix<T>) -> Matrix2<T> {
@@ -178,7 +178,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy> Mul<Matrix2<T>> for Matrix2<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<Matrix2<T>> for Matrix2<T> {
         type Output = Matrix2<T>;
 
         fn mul(self, rhs: Matrix2<T>) -> Matrix2<T> {
@@ -188,7 +188,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy> Mul<CMatrix<T>> for Matrix2<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<CMatrix<T>> for Matrix2<T> {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: CMatrix<T>) -> CMatrix<T> {

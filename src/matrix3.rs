@@ -8,20 +8,20 @@ pub mod matrix3 {
     use core::ops::{Sub, Mul};
 
     #[derive(Debug, Default)]
-    pub struct Matrix3<T: Num + Default + Copy> {
+    pub struct Matrix3<T: Num + Default + Copy + PartialOrd> {
         rows: usize,
         columns: usize,
         elems: Vec<Vec<T>>,
     }
 
-    impl<T: Num + Default + Copy> Matrix3<T> {
+    impl<T: Num + Default + Copy + PartialOrd> Matrix3<T> {
         pub fn new(m11: T, m12: T, m13: T, m21: T, m22: T, m23: T, m31: T, m32: T, m33: T,) -> Matrix3<T> {
             let e = vec![vec![m11, m12, m13], vec![m21, m22, m23], vec![m31, m32, m33]];
             Matrix3 { rows: 3, columns: 3, elems: e }
         }
     }
 
-    impl<T: Num + Default + Copy> Matrix23<T> for Matrix3<T> {
+    impl<T: Num + Default + Copy + PartialOrd> Matrix23<T> for Matrix3<T> {
         fn zero() -> Self {
             let e = vec![vec![T::zero(), T::zero(), T::zero()], 
             vec![T::zero(), T::zero(), T::zero()], 
@@ -83,7 +83,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Num + Default + Copy> Matrix<T> for Matrix3<T> {
+    impl<T: Num + Default + Copy + PartialOrd> Matrix<T> for Matrix3<T> {
         fn resize(&mut self) -> &mut Self {
             self.rows = self.elems.len();
             self.columns = self.elems.first().unwrap().len();
@@ -114,7 +114,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy> Add<Matrix3<T>> for Matrix3<T> {
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd> Add<Matrix3<T>> for Matrix3<T> {
         type Output = Matrix3<T>;
 
         fn add(self, rhs: Matrix3<T>) -> Matrix3<T> {
@@ -131,7 +131,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy> Add<CMatrix<T>> for Matrix3<T> {
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd> Add<CMatrix<T>> for Matrix3<T> {
         type Output = Matrix3<T>;
 
         fn add(self, rhs: CMatrix<T>) -> Matrix3<T> {
@@ -154,7 +154,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy> Sub<Matrix3<T>> for Matrix3<T> {
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd> Sub<Matrix3<T>> for Matrix3<T> {
         type Output = Matrix3<T>;
 
         fn sub(self, rhs: Matrix3<T>) -> Matrix3<T> {
@@ -171,7 +171,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy> Sub<CMatrix<T>> for Matrix3<T> {
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd> Sub<CMatrix<T>> for Matrix3<T> {
         type Output = Matrix3<T>;
 
         fn sub(self, rhs: CMatrix<T>) -> Matrix3<T> {
@@ -194,7 +194,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy> Mul<Matrix3<T>> for Matrix3<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<Matrix3<T>> for Matrix3<T> {
         type Output = Matrix3<T>;
 
         fn mul(self, rhs: Matrix3<T>) -> Matrix3<T> {
@@ -204,7 +204,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy> Mul<CMatrix<T>> for Matrix3<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<CMatrix<T>> for Matrix3<T> {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: CMatrix<T>) -> CMatrix<T> {
