@@ -4,10 +4,10 @@ pub mod cmatrix {
     pub use crate::matrix::matrix::Matrix;
     use crate::matrix2::matrix2::Matrix2;
     use crate::matrix3::matrix3::Matrix3;
-    use std::ops::Add;
+    use std::ops::{Add, Index, IndexMut};
     use core::ops::{Sub, Mul};
 
-    #[derive(Debug, Default)]
+    #[derive(Debug, Default, Clone)]
     pub struct CMatrix<T: Num + Default + Clone + PartialOrd> {
         rows: usize,
         columns: usize,
@@ -277,5 +277,121 @@ pub mod cmatrix {
             let mut m = self;
             m.multiplicate(rhs)
         }
+    }
+
+    impl<T: Num + Default + Clone + Copy + PartialOrd> Index<(usize, usize)> for CMatrix<T> {
+        type Output = T;
+
+        fn index(&self, index: (usize, usize)) -> &Self::Output {
+            &self.elems[index.0][index.1]
+        }
+    }
+
+    impl<T: Num + Default + Clone + Copy + PartialOrd> IndexMut<(usize, usize)> for CMatrix<T> {
+        fn index_mut(&mut self, index: (usize, usize)) -> &mut T {
+            &mut self.elems[index.0][index.1]
+        }
+    }
+
+    impl<T: Num + Default + Clone + Copy + PartialOrd> Index<usize> for CMatrix<T> {
+        type Output = Vec<T>;
+
+        fn index(&self, index: usize) -> &Self::Output {
+            &self.elems[index]
+        }
+    }
+
+    impl<T: Num + Default + Clone + Copy + PartialOrd> IndexMut<usize> for CMatrix<T> {
+        fn index_mut(&mut self, index: usize) -> &mut Vec<T> {
+            &mut self.elems[index]
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{CMatrix, CMatrixTrait, Matrix2, Matrix23, Matrix3, Matrix};
+
+    #[test]
+    fn cmatrix_i32_add_test() {
+        let m = CMatrix::<i32>::one(2, 3);
+        let m2 = CMatrix::<i32>::one(2, 3);
+
+        assert_eq!((m+m2)[(0,0)], 2);
+    }
+
+    #[test]
+    fn cmatrix_f32_add_test() {
+        let m = CMatrix::<f32>::one(2, 3);
+        let m2 = CMatrix::<f32>::one(2, 3);
+
+        assert_eq!((m+m2)[(0,0)], 2.0);
+    }
+
+    #[test]
+    fn cmatrix_i32_sub_test() {
+        let m = CMatrix::<i32>::one(2, 3);
+        let m2 = CMatrix::<i32>::one(2, 3);
+
+        assert_eq!((m-m2)[(0,0)], 0);
+    }
+
+    #[test]
+    fn cmatrix_f32_sub_test() {
+        let m = CMatrix::<f32>::one(2, 3);
+        let m2 = CMatrix::<f32>::one(2, 3);
+
+        assert_eq!((m-m2)[(0,0)], 0.0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn cmatrix_mul_test() {
+        let m = CMatrix::from_element(2, 3, 2);
+        let m2 = CMatrix::from_element(2, 3, 2);
+
+        assert_eq!((m*m2)[(0,0)], 1);
+    }
+
+    #[test]
+    fn cmatrix_cmatrix_mul_test() {
+        let m = CMatrix::from_element(2, 3, 2);
+        let m2 = CMatrix::from_element(3, 2, 2);
+
+        assert_eq!((m.clone()*m2.clone())[(0,0)], 12);
+        assert_eq!((m.clone()*m2.clone())[(0,1)], 12);
+        assert_eq!((m.clone()*m2.clone())[(1,0)], 12);
+        assert_eq!((m.clone()*m2.clone())[(1,1)], 12);
+    }
+
+    #[test]
+    fn cmatrix_matrix2_mul_test() {
+        let m = CMatrix::from_element(2, 2, 2);
+        let m2 = Matrix2::from_element(2);
+
+        assert_eq!((m.clone()*m2.clone())[(0,0)], 8);
+        assert_eq!((m.clone()*m2.clone())[(0,1)], 8);
+        assert_eq!((m.clone()*m2.clone())[(1,0)], 8);
+        assert_eq!((m.clone()*m2.clone())[(1,1)], 8);
+    }
+
+    #[test]
+    fn cmatrix_matrix3_mul_test() {
+        let m = CMatrix::from_element(2, 3, 2);
+        let m2 = Matrix3::from_element(2);
+
+        assert_eq!((m.clone()*m2.clone())[(0,0)], 12);
+        assert_eq!((m.clone()*m2.clone())[(0,1)], 12);
+        assert_eq!((m.clone()*m2.clone())[(0,2)], 12);
+        assert_eq!((m.clone()*m2.clone())[(1,0)], 12);
+        assert_eq!((m.clone()*m2.clone())[(1,1)], 12);
+        assert_eq!((m.clone()*m2.clone())[(1,2)], 12);
+    }
+
+    #[test]
+    fn cmatrix_transpose_test() {
+        let mut m = CMatrix::from_vec_as_rows(2, vec![1,2,3,4]);
+
+        assert_eq!(m.get_columns(), m.transpose().get_rows());
     }
 }

@@ -1,5 +1,5 @@
 pub mod matrix {
-    use num::{Num, traits::Pow};
+    use num::Num;
     pub use std::ops::Add;
 
     use crate::{CMatrix, CMatrixTrait};
@@ -80,6 +80,8 @@ pub mod matrix {
 
             c
         }
+
+        
 
         fn get_rows(&self) -> usize;
         fn get_columns(&self) -> usize;

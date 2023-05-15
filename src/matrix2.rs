@@ -1,26 +1,29 @@
 pub mod matrix2 {
+    use std::ops::Index;
+    use std::ops::Add;
+    use core::ops::{Sub, Mul};
+    use std::ops::IndexMut;
+
     use num::Num;
     pub use crate::matrix23_trait::matrix23::Matrix23;
     pub use crate::matrix::matrix::Matrix;
-    use crate::cmatrix::cmatrix::CMatrix;
-    use std::ops::Add;
-    use core::ops::{Sub, Mul};
+    pub use crate::cmatrix::cmatrix::CMatrix;
 
-    #[derive(Debug, Default)]
-    pub struct Matrix2<T: Num + Default + Copy + PartialOrd> {
+    #[derive(Debug, Default, Clone)]
+    pub struct Matrix2<T: Num + Default + Copy> {
         rows: usize,
         columns: usize,
         elems: Vec<Vec<T>>,
     }
 
-    impl<T: Num + Default + Copy + PartialOrd> Matrix2<T> {
+    impl<T: Num + Default + Copy> Matrix2<T> {
         pub fn new(m11: T, m12: T, m21: T, m22: T) -> Matrix2<T> {
             let e = vec![vec![m11, m12], vec![m21, m22]];
             Matrix2 { rows: 2, columns: 2, elems: e }
         }
     }
 
-    impl<T: Num + Default + Copy + PartialOrd> Matrix23<T> for Matrix2<T> {
+    impl<T: Num + Default + Copy> Matrix23<T> for Matrix2<T> {
         fn zero() -> Self {
             let e = vec![vec![T::zero(), T::zero()], vec![T::zero(), T::zero()]];
             Matrix2 { rows: 2, columns: 2, elems: e }
@@ -69,8 +72,13 @@ pub mod matrix2 {
 
     impl<T: Num + Default + Copy + PartialOrd> Matrix<T> for Matrix2<T> {
         fn resize(&mut self) -> &mut Self {
-            self.rows = self.elems.len();
-            self.columns = self.elems.first().unwrap().len();
+            if self.elems.len() != self.rows {
+                if self.elems.first().unwrap().len() != self.columns {
+                    let t = self.columns;
+                    self.columns = self.rows;
+                    self.rows = t;
+                }
+            }
 
             self
         }
@@ -179,12 +187,11 @@ pub mod matrix2 {
     }
 
     impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<Matrix2<T>> for Matrix2<T> {
-        type Output = Matrix2<T>;
+        type Output = CMatrix<T>;
 
-        fn mul(self, rhs: Matrix2<T>) -> Matrix2<T> {
+        fn mul(self, rhs: Matrix2<T>) -> CMatrix<T> {
             let mut m = self;
-            m.multiplicate(rhs);
-            Matrix2 { rows: 2, columns: 2, elems: m.elems }
+            m.multiplicate(rhs)
         }
     }
 
@@ -195,5 +202,86 @@ pub mod matrix2 {
             let mut m = self;
             m.multiplicate(rhs)
         }
+    }
+
+    impl<T: Num + Default + Clone + Copy + PartialOrd> Index<(usize, usize)> for Matrix2<T> {
+        type Output = T;
+
+        fn index(&self, index: (usize, usize)) -> &Self::Output {
+            &self.elems[index.0][index.1]
+        }
+    }
+
+    impl<T: Num + Default + Clone + Copy + PartialOrd> IndexMut<(usize, usize)> for Matrix2<T> {
+        fn index_mut(&mut self, index: (usize, usize)) -> &mut T {
+            &mut self.elems[index.0][index.1]
+        }
+    }
+
+    impl<T: Num + Default + Clone + Copy + PartialOrd> Index<usize> for Matrix2<T> {
+        type Output = Vec<T>;
+
+        fn index(&self, index: usize) -> &Self::Output {
+            &self.elems[index]
+        }
+    }
+
+    impl<T: Num + Default + Clone + Copy + PartialOrd> IndexMut<usize> for Matrix2<T> {
+        fn index_mut(&mut self, index: usize) -> &mut Vec<T> {
+            &mut self.elems[index]
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{Matrix2, Matrix23, Matrix};
+
+    #[test]
+    fn matrix2_i32_add_test() {
+        let m = Matrix2::<i32>::one();
+        let m2 = Matrix2::<i32>::one();
+
+        assert_eq!((m+m2)[(0,0)], 2);
+    }
+
+    #[test]
+    fn matrix2_f32_add_test() {
+        let m = Matrix2::<f32>::one();
+        let m2 = Matrix2::<f32>::one();
+
+        assert_eq!((m+m2)[(0,0)], 2.0);
+    }
+
+    #[test]
+    fn matrix2_i32_sub_test() {
+        let m = Matrix2::<i32>::one();
+        let m2 = Matrix2::<i32>::one();
+
+        assert_eq!((m-m2)[(0,0)], 0);
+    }
+
+    #[test]
+    fn matrix2_f32_sub_test() {
+        let m = Matrix2::<f32>::one();
+        let m2 = Matrix2::<f32>::one();
+
+        assert_eq!((m-m2)[(0,0)], 0.0);
+    }
+
+    #[test]
+    fn matrix2_mul_test() {
+        let mut m = Matrix2::new(1,2,3,4);
+        let m2 = Matrix2::new(5,6,7,8);
+
+        assert_eq!((m.clone()*m2.clone())[(0,0)], 19);
+        assert_eq!((m.clone()*m2.clone())[(0,1)], 22);
+        assert_eq!((m.clone()*m2.clone())[(1,0)], 43);
+        assert_eq!((m.clone()*m2.clone())[(1,1)], 50);
+
+        assert_eq!((m.clone().multiplicate(m2.clone()))[(0,0)], 19);
+        assert_eq!((m.clone().multiplicate(m2.clone()))[(0,1)], 22);
+        assert_eq!((m.clone().multiplicate(m2.clone()))[(1,0)], 43);
+        assert_eq!((m.multiplicate(m2))[(1,1)], 50);
     }
 }
