@@ -35,6 +35,16 @@ pub mod matrix3 {
             vec![T::one(), T::one(), T::one()], 
             vec![T::one(), T::one(), T::one()]
             ];
+
+            Matrix3 { rows: 3, columns: 3, elems: e }
+        }
+
+        fn identity() -> Self {
+            let e = vec![vec![T::one(), T::zero(), T::zero()], 
+            vec![T::zero(), T::one(), T::zero()], 
+            vec![T::zero(), T::zero(), T::one()]
+            ];
+
             Matrix3 { rows: 3, columns: 3, elems: e }
         }
 
@@ -203,6 +213,22 @@ pub mod matrix3 {
         }
     }
 
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<T> for Matrix3<T> {
+        type Output = Matrix3<T>;
+
+        fn mul(self, rhs: T) -> Matrix3<T> {
+            let mut v = self.clone();
+
+            for i in 0..self.rows {
+                for j in 0..self.columns {
+                    v[i][j] = v[i][j] * rhs;
+                }
+            }
+
+            v
+        }
+    }
+
     impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<CMatrix<T>> for Matrix3<T> {
         type Output = CMatrix<T>;
 
@@ -243,7 +269,7 @@ pub mod matrix3 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Matrix3, Matrix23};
+    use crate::{Matrix3, Matrix23, Matrix};
 
     #[test]
     fn matrix3_i32_add_test() {
@@ -291,5 +317,12 @@ mod tests {
         assert_eq!((m.clone()*m2.clone())[(2,0)], 318);
         assert_eq!((m.clone()*m2.clone())[(2,1)], 342);
         assert_eq!((m.clone()*m2.clone())[(2,2)], 366);
+    }
+
+    #[test]
+    fn matrix3_det_test() {
+        let m = Matrix3::new(1,4,6,2,1,2,8,3,2);
+
+        assert_eq!(m.det(), 32);
     }
 }

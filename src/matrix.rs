@@ -20,8 +20,6 @@ pub mod matrix {
                 }
             }
 
-            self.get_elements().clear();
-
             let mut q = vec![];
             let mut a = vec![];
 
@@ -81,7 +79,67 @@ pub mod matrix {
             c
         }
 
-        
+        fn det(&self) -> T {
+
+            if self.get_rows() != self.get_columns() {
+                panic!("Can't find determinant! Maybe rows != columns?");
+            }
+
+            let mut mat = self.get_elements();
+            let elems = self.get_elements();
+            let mut temp = vec![];
+            let mut total = T::one();
+            let mut det = T::one();
+
+            let n = self.get_rows();
+
+            for i in 0..n {
+                temp.push(T::zero());
+            }
+
+            for i in 0..n {
+                let mut index = i;
+                while index < n && elems[index][i] == T::zero() {
+                    index += 1;
+                }
+
+                if index == n {
+                    continue;
+                }
+
+                if index != i {
+                    for j in 0..n {
+                        (mat[index][j], mat[i][j]) = (mat[i][j].clone(), mat[index][j].clone());
+                    }
+
+                    let exp = index - i;
+                    if exp % 2 == 1 {
+                        det = det * (T::zero() - T::one());
+                    }
+                }
+
+                for j in 0..n {
+                    temp[j] = mat[i][j].clone();
+                }
+
+                for j in (i + 1)..n {
+                    let num1 = temp[i].clone();
+                    let num2 = mat[j][i].clone();
+    
+                    for k in 0..n {
+                        mat[j][k] = (num1.clone() * mat[j][k].clone()) - (num2.clone() * temp[k].clone());
+                    }
+    
+                    total = total * num1;
+                }
+            }
+
+            for i in 0..n {
+                det = det * mat[i][i].clone();
+            }
+    
+            det / total
+        }
 
         fn get_rows(&self) -> usize;
         fn get_columns(&self) -> usize;

@@ -34,6 +34,11 @@ pub mod matrix2 {
             Matrix2 { rows: 2, columns: 2, elems: e }
         }
 
+        fn identity() -> Self {
+            let e = vec![vec![T::one(), T::zero()], vec![T::zero(), T::one()]];
+            Matrix2 { rows: 2, columns: 2, elems: e }
+        }
+
         fn from_element(e: T) -> Self {
             let e = vec![vec![e, e], vec![e, e]];
             Matrix2 { rows: 2, columns: 2, elems: e }
@@ -195,6 +200,22 @@ pub mod matrix2 {
         }
     }
 
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<T> for Matrix2<T> {
+        type Output = Matrix2<T>;
+
+        fn mul(self, rhs: T) -> Matrix2<T> {
+            let mut v = self.clone();
+
+            for i in 0..self.rows {
+                for j in 0..self.columns {
+                    v[i][j] = v[i][j] * rhs;
+                }
+            }
+
+            v
+        }
+    }
+
     impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<CMatrix<T>> for Matrix2<T> {
         type Output = CMatrix<T>;
 
@@ -283,5 +304,12 @@ mod tests {
         assert_eq!((m.clone().multiplicate(m2.clone()))[(0,1)], 22);
         assert_eq!((m.clone().multiplicate(m2.clone()))[(1,0)], 43);
         assert_eq!((m.multiplicate(m2))[(1,1)], 50);
+    }
+
+    #[test]
+    fn matrix2_det_test() {
+        let m = Matrix2::new(5,6,1,4);
+
+        assert_eq!(m.det(), 14);
     }
 }

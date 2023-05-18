@@ -1,9 +1,11 @@
 pub mod cmatrix {
     use num::Num;
+    use rand::prelude::Distribution;
     pub use crate::cmatrix_trait::cmatrix_trait::CMatrixTrait;
     pub use crate::matrix::matrix::Matrix;
     use crate::matrix2::matrix2::Matrix2;
     use crate::matrix3::matrix3::Matrix3;
+
     use std::ops::{Add, Index, IndexMut};
     use core::ops::{Sub, Mul};
 
@@ -43,6 +45,19 @@ pub mod cmatrix {
             }
 
             CMatrix { rows, columns, elems: e }
+        }
+
+        fn identity(rows: usize, columns: usize) -> Self {
+            let m = CMatrix::zero(rows, columns);
+            let mut m = m.get_elements();
+
+            for i in 0..rows {
+                for j in 0..columns {
+                    m[i][i] = T::one();
+                }
+            }
+
+            CMatrix { rows, columns, elems: m }
         }
 
         fn from_element(rows: usize, columns: usize, el: T) -> Self {
@@ -261,6 +276,22 @@ pub mod cmatrix {
         }
     }
 
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<T> for CMatrix<T> {
+        type Output = CMatrix<T>;
+
+        fn mul(self, rhs: T) -> CMatrix<T> {
+            let mut v = self.clone();
+
+            for i in 0..self.rows {
+                for j in 0..self.columns {
+                    v[i][j] = v[i][j] * rhs;
+                }
+            }
+
+            v
+        }
+    }
+
     impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<Matrix2<T>> for CMatrix<T> {
         type Output = CMatrix<T>;
 
@@ -346,7 +377,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn cmatrix_mul_test() {
+    fn cmatrix_mul_panic_test() {
         let m = CMatrix::from_element(2, 3, 2);
         let m2 = CMatrix::from_element(2, 3, 2);
 
@@ -393,5 +424,24 @@ mod tests {
         let mut m = CMatrix::from_vec_as_rows(2, vec![1,2,3,4]);
 
         assert_eq!(m.get_columns(), m.transpose().get_rows());
+    }
+
+    #[test]
+    fn cmatrix_det_test() {
+        let mut m = CMatrix::from_element(4, 4, 2);
+
+        m.set_elements(vec![vec![2,0,1,6],vec![3,2,8,4],vec![4,4,4,4],vec![8,7,9,5]]);
+
+        assert_eq!(m.det(), 208);
+    }
+
+    #[test]
+    #[should_panic]
+    fn cmatrix_det_panic_test() {
+        let mut m = CMatrix::from_element(4, 4, 2);
+
+        m.set_elements(vec![vec![3,2,8,4],vec![4,4,4,4],vec![8,7,9,5]]);
+
+        assert_eq!(m.det(), 208);
     }
 }
