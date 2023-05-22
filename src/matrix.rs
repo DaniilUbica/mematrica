@@ -4,7 +4,7 @@ pub mod matrix {
 
     use crate::{CMatrix, CMatrixTrait};
 
-    pub trait Matrix<T: Num + Default + Clone + PartialOrd> {
+    pub trait Matrix<T: Num + Default + Clone + PartialOrd + std::str::FromStr> {
         fn transpose(&mut self) -> &mut Self {
             let r = self.get_rows();
             let c = self.get_columns();
@@ -138,7 +138,15 @@ pub mod matrix {
                 det = det * mat[i][i].clone();
             }
     
+            if total == T::zero() {
+                total = T::one();
+            }
+
             det / total
+        }
+
+        fn inverse(&mut self) -> &mut Self {
+            todo!();
         }
 
         fn get_rows(&self) -> usize;

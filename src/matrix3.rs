@@ -4,7 +4,7 @@ pub mod matrix3 {
     pub use crate::matrix23_trait::matrix23::Matrix23;
     pub use crate::matrix::matrix::Matrix;
     use crate::cmatrix::cmatrix::CMatrix;
-    use std::ops::{Add, Index, IndexMut};
+    use std::{ops::{Add, Index, IndexMut}, fs::OpenOptions, io::Read};
     use core::ops::{Sub, Mul};
 
     #[derive(Debug, Default, Clone)]
@@ -21,7 +21,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Num + Default + Copy + PartialOrd> Matrix23<T> for Matrix3<T> {
+    impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr> Matrix23<T> for Matrix3<T> {
         fn zero() -> Self {
             let e = vec![vec![T::zero(), T::zero(), T::zero()], 
             vec![T::zero(), T::zero(), T::zero()], 
@@ -46,6 +46,25 @@ pub mod matrix3 {
             ];
 
             Matrix3 { rows: 3, columns: 3, elems: e }
+        }
+
+        fn from_file(filename: String, delimiter: char) -> Self 
+        where <T as std::str::FromStr>::Err: std::fmt::Debug,
+        {
+            let mut file = OpenOptions::new().read(true)
+                .open(filename.clone()).expect(&format!("Can't open file with filename {filename}"));
+
+            let mut s = String::new();;
+
+            file.read_to_string(&mut s).expect(&format!("Can't read file with filename {filename}"));
+
+            let e: Vec<&str> = s.split(delimiter).collect();
+
+            let e: Vec<T> = e.iter().map(|c| {
+                c.parse().unwrap()
+            }).collect();
+
+            Matrix3::new(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8])
         }
 
         fn from_element(e: T) -> Self {
@@ -93,7 +112,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Num + Default + Copy + PartialOrd> Matrix<T> for Matrix3<T> {
+    impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr> Matrix<T> for Matrix3<T> {
         fn resize(&mut self) -> &mut Self {
             self.rows = self.elems.len();
             self.columns = self.elems.first().unwrap().len();
@@ -141,7 +160,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd> Add<CMatrix<T>> for Matrix3<T> {
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Add<CMatrix<T>> for Matrix3<T> {
         type Output = Matrix3<T>;
 
         fn add(self, rhs: CMatrix<T>) -> Matrix3<T> {
@@ -164,7 +183,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd> Sub<Matrix3<T>> for Matrix3<T> {
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Sub<Matrix3<T>> for Matrix3<T> {
         type Output = Matrix3<T>;
 
         fn sub(self, rhs: Matrix3<T>) -> Matrix3<T> {
@@ -181,7 +200,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd> Sub<CMatrix<T>> for Matrix3<T> {
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Sub<CMatrix<T>> for Matrix3<T> {
         type Output = Matrix3<T>;
 
         fn sub(self, rhs: CMatrix<T>) -> Matrix3<T> {
@@ -204,7 +223,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<Matrix3<T>> for Matrix3<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<Matrix3<T>> for Matrix3<T> {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: Matrix3<T>) -> CMatrix<T> {
@@ -213,7 +232,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<T> for Matrix3<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<T> for Matrix3<T> {
         type Output = Matrix3<T>;
 
         fn mul(self, rhs: T) -> Matrix3<T> {
@@ -229,7 +248,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd> Mul<CMatrix<T>> for Matrix3<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<CMatrix<T>> for Matrix3<T> {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: CMatrix<T>) -> CMatrix<T> {
