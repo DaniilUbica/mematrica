@@ -170,11 +170,9 @@ pub mod cmatrix {
     }
     
     impl<T: Num + Default + Clone + PartialOrd + std::str::FromStr> Matrix<T> for CMatrix<T> {
-        fn resize(&mut self) -> &mut Self {
+        fn resize(&mut self) {
             self.rows = self.elems.len();
             self.columns = self.elems.first().unwrap().len();
-
-            self
         }
         
         fn get_columns(&self) -> usize {
@@ -189,12 +187,12 @@ pub mod cmatrix {
             self.elems.clone()
         }
 
-        fn set_elements(&mut self, v: Vec<Vec<T>>) -> &mut Self {
+        fn set_elements(&mut self, v: Vec<Vec<T>>) {
             self.rows = v.len();
             self.columns = v[0].len();
             self.elems = v;
 
-            self.resize()
+            self.resize();
         }
     }
 
@@ -487,8 +485,9 @@ mod tests {
     #[test]
     fn cmatrix_transpose_test() {
         let mut m = CMatrix::from_vec_as_rows(2, vec![1,2,3,4]);
+        m.transpose();
 
-        assert_eq!(m.get_columns(), m.transpose().get_rows());
+        assert_eq!(m.get_columns(), m.get_rows());
     }
 
     #[test]

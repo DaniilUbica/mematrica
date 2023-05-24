@@ -5,7 +5,9 @@ pub mod matrix {
     use crate::{CMatrix, CMatrixTrait};
 
     pub trait Matrix<T: Num + Default + Clone + PartialOrd + std::str::FromStr> {
-        fn transpose(&mut self) -> &mut Self {
+        fn transpose(&mut self)
+        where Self: Sized,
+        {
             let r = self.get_rows();
             let c = self.get_columns();
 
@@ -34,12 +36,13 @@ pub mod matrix {
                 a.push(q.clone());
                 q.clear();
                 i = 0;
-                i += j
+                i += j;
             }
 
-            self.set_elements(a)
+            self.set_elements(a);
         }
-        fn resize(&mut self) -> &mut Self;
+
+        fn resize(&mut self);
 
         fn multiplicate<M>(&mut self, rhs: M) -> CMatrix<T> 
         where
@@ -153,6 +156,6 @@ pub mod matrix {
         fn get_columns(&self) -> usize;
         fn get_elements(&self) -> Vec<Vec<T>>;
 
-        fn set_elements(&mut self, v: Vec<Vec<T>>) -> &mut Self;
+        fn set_elements(&mut self, v: Vec<Vec<T>>);
     }
 }

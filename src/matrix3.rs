@@ -113,11 +113,9 @@ pub mod matrix3 {
     }
 
     impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr> Matrix<T> for Matrix3<T> {
-        fn resize(&mut self) -> &mut Self {
+        fn resize(&mut self) {
             self.rows = self.elems.len();
             self.columns = self.elems.first().unwrap().len();
-
-            self
         }
 
         fn get_columns(&self) -> usize {
@@ -132,14 +130,13 @@ pub mod matrix3 {
             self.elems.clone()
         }
 
-        fn set_elements(&mut self, v: Vec<Vec<T>>) -> &mut Self {
+        fn set_elements(&mut self, v: Vec<Vec<T>>) {
             if self.columns == v.len() && self.columns == v.first().unwrap().len() {
                 self.elems = v;
             }
             else {
                 panic!("Can't make Matrix3 from this elements! Wrong size maybe?");
             }
-            self
         }
     }
 

@@ -97,7 +97,7 @@ pub mod matrix2 {
     }
 
     impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr> Matrix<T> for Matrix2<T> {
-        fn resize(&mut self) -> &mut Self {
+        fn resize(&mut self) {
             if self.elems.len() != self.rows {
                 if self.elems.first().unwrap().len() != self.columns {
                     let t = self.columns;
@@ -105,8 +105,6 @@ pub mod matrix2 {
                     self.rows = t;
                 }
             }
-
-            self
         }
         
         fn get_columns(&self) -> usize {
@@ -121,14 +119,13 @@ pub mod matrix2 {
             self.elems.clone()
         }
 
-        fn set_elements(&mut self, v: Vec<Vec<T>>) -> &mut Self {
+        fn set_elements(&mut self, v: Vec<Vec<T>>) {
             if self.columns == v.len() && self.columns == v.first().unwrap().len() {
                 self.elems = v;
             }
             else {
                 panic!("Can't make Matrix2 from this elements! Wrong size maybe?");
             }
-            self
         }
     }
 
