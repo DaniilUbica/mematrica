@@ -1,12 +1,10 @@
 pub mod cmatrix {
-    use num::Num;
-    use rand::prelude::Distribution;
     pub use crate::cmatrix_trait::cmatrix_trait::CMatrixTrait;
-    pub use crate::cmatrix_trait::cmatrix_trait::CmatrixF32;
     pub use crate::matrix::matrix::Matrix;
     use crate::matrix2::matrix2::Matrix2;
     use crate::matrix3::matrix3::Matrix3;
-
+    
+    use num::Num;
     use std::{ops::{Add, Index, IndexMut}, fs::OpenOptions, io::Read};
     use core::ops::{Sub, Mul};
 
@@ -15,26 +13,6 @@ pub mod cmatrix {
         rows: usize,
         columns: usize,
         elems: Vec<Vec<T>>,
-    }
-
-    impl CmatrixF32 for CMatrix<i128> {
-        fn random(rows: usize, columns: usize) -> Self {
-
-            let mut e = vec![];
-            let mut v = vec![];
-
-            
-
-            for i in 0..rows {
-                for j in 0..rows {
-                    e.push(rand::random::<i8>() as i128);
-                }
-                v.push(e.clone());
-                e.clear();
-            }
-
-            CMatrix { rows, columns, elems: v }
-        }
     }
 
     impl<T: Num + Default + Clone + PartialOrd + std::str::FromStr> CMatrixTrait<T> for CMatrix<T> {

@@ -5,6 +5,8 @@ pub mod matrix {
     use crate::{CMatrix, CMatrixTrait};
 
     pub trait Matrix<T: Num + Default + Clone + PartialOrd + std::str::FromStr> {
+
+        /// Transpose matrix
         fn transpose(&mut self)
         where Self: Sized,
         {
@@ -42,8 +44,10 @@ pub mod matrix {
             self.set_elements(a);
         }
 
+        /// Changes size of matrix, if it was formated
         fn resize(&mut self);
 
+        /// Multiplies a matrix by another matrix
         fn multiplicate<M>(&mut self, rhs: M) -> CMatrix<T> 
         where
             M: Matrix<T>,
@@ -82,6 +86,7 @@ pub mod matrix {
             c
         }
 
+        /// Counts determinant of matrix
         fn det(&self) -> T {
 
             if self.get_rows() != self.get_columns() {
@@ -148,14 +153,73 @@ pub mod matrix {
             det / total
         }
 
+        /// Counts inversed matrix
         fn inverse(&mut self) -> &mut Self {
-            todo!();
+            let rows = self.get_rows();
+            let columns = self.get_columns();
+            let mut aug_matrix = self.get_elements();
+
+            if (rows != columns) {
+                panic!("Can't inverse this matrix! Maybe rows != columns?");
+            }
+
+            if (self.det() == T::zero()) {
+                panic!("Can't inverse this matrix! determinant = 0");
+            }
+
+            let mut id_matrix = CMatrix::<T>::identity(rows, columns).get_elements();
+            for i in 0..rows {
+                let mut max_row = i;
+                for j in i + 1..rows {
+                    if aug_matrix[j][i] < T::zero() {
+                        aug_matrix[j][i] = aug_matrix[j][i].clone() * (T::zero() - T::one());
+                    }
+                    if aug_matrix[max_row][i] < T::zero() {
+                        aug_matrix[max_row][i] = aug_matrix[max_row][i].clone() * (T::zero() - T::one());
+                    }
+                    if aug_matrix[j][i] > aug_matrix[max_row][i] {
+                        max_row = j;
+                    }
+                }
+                if max_row != i {
+                    aug_matrix.swap(i, max_row);
+                    id_matrix.swap(i, max_row);
+                }
+
+                let pivot = aug_matrix[i][i].clone();
+
+                for j in i..rows {
+                    aug_matrix[i][j] =  aug_matrix[i][j].clone() / pivot.clone();
+                }
+                for j in 0..rows {
+                    id_matrix[i][j] = id_matrix[i][j].clone() / pivot.clone();
+                }
+                
+                for j in 0..rows {
+                    if j != i {
+                        let factor = aug_matrix[j][i].clone();
+                        for k in i..rows {
+                            aug_matrix[j][k] = aug_matrix[j][k].clone() - factor.clone() * aug_matrix[i][k].clone();
+                        }
+                        for k in 0..rows {
+                            id_matrix[j][k] = id_matrix[j][k].clone() - factor.clone() * id_matrix[i][k].clone();
+                        }
+                    }
+                }
+            }
+
+            self.set_elements(id_matrix);
+            self
         }
 
+        /// Returns rows amount
         fn get_rows(&self) -> usize;
+        /// Returns columns amount
         fn get_columns(&self) -> usize;
+        /// Returns elements of matrix as Vec<Vec>
         fn get_elements(&self) -> Vec<Vec<T>>;
 
+        /// Set elements to matrix
         fn set_elements(&mut self, v: Vec<Vec<T>>);
     }
 }

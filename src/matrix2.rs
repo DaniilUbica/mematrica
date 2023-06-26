@@ -19,6 +19,17 @@ pub mod matrix2 {
     }
 
     impl<T: Num + Default + Copy> Matrix2<T> {
+        /// # Example
+        /// ```
+        /// extern crate matrix_lib;
+        /// 
+        /// use matrix_lib::*;
+        /// 
+        /// let mut matrix_2x2 = Matrix2::<i32>::new(1, 2, 3, 4);
+        /// assert_eq!(vec![vec![1, 2], vec![3, 4]], matrix_2x2.get_elements());
+        /// ```
+
+
         pub fn new(m11: T, m12: T, m21: T, m22: T) -> Matrix2<T> {
             let e = vec![vec![m11, m12], vec![m21, m22]];
             Matrix2 { rows: 2, columns: 2, elems: e }
@@ -104,6 +115,9 @@ pub mod matrix2 {
                     self.columns = self.rows;
                     self.rows = t;
                 }
+            }
+            if self.rows != self.columns && (self.columns != 2 || self.rows != 2) {
+                panic!("Matrix2 have more than 2 elements in row or column!");
             }
         }
         

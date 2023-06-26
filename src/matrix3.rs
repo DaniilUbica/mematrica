@@ -116,6 +116,9 @@ pub mod matrix3 {
         fn resize(&mut self) {
             self.rows = self.elems.len();
             self.columns = self.elems.first().unwrap().len();
+            if self.rows != self.columns && (self.columns != 3 || self.rows != 3) {
+                panic!("Matrix3 have more than 3 elements in row or column!");
+            }
         }
 
         fn get_columns(&self) -> usize {
