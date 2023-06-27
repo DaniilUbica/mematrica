@@ -1,5 +1,7 @@
 # mematrica [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url]
 
+![mematrica_logo](https://github.com/DaniilUbica/mematrica/assets/102466617/a298c590-78c3-4ae8-89fa-62a8e0a2de28)
+
 ## an easy to use library for working with matrices.
 
 ## Features
