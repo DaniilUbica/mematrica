@@ -1,4 +1,4 @@
-# mematrica
+# mematrica [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url]
 
 ## an easy to use library for working with matrices.
 
