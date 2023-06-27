@@ -3,7 +3,7 @@
 ## an easy to use library for working with matrices.
 
 ## Examples
-```
+```rust
 extern crate matrix_lib;
 
 use matrix_lib::*;
