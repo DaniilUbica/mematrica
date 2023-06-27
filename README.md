@@ -77,9 +77,9 @@ extern crate matrix_lib;
 use matrix_lib::*;
 
 fn main() {
-    let mut m1 = CMatrix::from_element(2, 2, 4);
+    let m1 = CMatrix::from_element(2, 2, 4);
     let m2 = Matrix2::from_element(2);
 
-    assert_eq!(vec![vec![16, 16], vec![16, 16]], m1*m2); //also can use '+' '-'
+    assert_eq!(vec![vec![16, 16], vec![16, 16]], (m1*m2).get_elements()); //also can use '+' '-'
 }
 ```
