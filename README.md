@@ -2,6 +2,16 @@
 
 ## an easy to use library for working with matrices.
 
+## Features
+* Matrix-scalar addition, substraction, multiplication
+* Matrix-matrix addition, substraction, multiplication
+* Matrix indexing
+* Matrix determinant search
+* Inverse matrix search
+* Matrix transpose
+* Matrix from file reading
+* Matrix to file writing
+
 ## Usage
 ```toml
 [dependencies]
@@ -35,6 +45,15 @@ fn main() {
     assert_eq!(vec![vec![1, 2], vec![1, 2]], matrix_2x2.get_elements()); 
 }
 ```
+
+### Other ways to create matrix
+- `zero`: creates a matrix with zeros as its elements
+- `one`: creates a matrix with ones as its elements
+- `identity`: creates an identity matrix
+- `from_file`: reads matrix from file
+- `from_element`: creates a matrix from element
+- `from_vec`: creates matrix from vector as its rows or columns (`from_vec_as_rows` or `from vec_as_columns`)
+
 ### Get element by index
 ```rust
 extern crate matrix_lib;
