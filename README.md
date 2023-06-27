@@ -1,4 +1,4 @@
-# mematrica
+# mematrica [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url]
 
 ## an easy to use library for working with matrices.
 
@@ -15,7 +15,7 @@
 ## Usage
 ```toml
 [dependencies]
-mematrica = "0.1"
+mematrica = "0.1.1"
 ```
 
 ## Examples
@@ -83,3 +83,8 @@ fn main() {
     assert_eq!(vec![vec![16, 16], vec![16, 16]], (m1*m2).get_elements()); //also can use '+' '-'
 }
 ```
+
+[documentation-img]: https://docs.rs/mematrica/badge.svg
+[documentation-url]: https://docs.rs/mematrica
+[package-img]: https://img.shields.io/crates/v/mematrica.svg
+[package-url]: https://crates.io/crates/mematrica
