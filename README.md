@@ -35,4 +35,15 @@ fn main() {
     assert_eq!(vec![vec![1, 2], vec![1, 2]], matrix_2x2.get_elements()); 
 }
 ```
+### Get element by index
+```rust
+extern crate matrix_lib;
 
+use matrix_lib::*;
+
+fn main() {
+    et mut matrix_2x2 = Matrix2::<i32>::new(1, 2, 3, 4);
+
+    assert_eq!(1, matrix_2x2[0, 0]); 
+}
+```
