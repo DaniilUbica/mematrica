@@ -24,7 +24,7 @@ fn main() {
 ```
 
 ### Using from_vec()
-```
+```rust
 extern crate matrix_lib;
 
 use matrix_lib::*;
