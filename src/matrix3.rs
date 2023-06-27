@@ -1,11 +1,12 @@
 pub mod matrix3 {
-
-    use num::Num;
+    extern crate num;
+    
+    use self::num::Num;
     pub use crate::matrix23_trait::matrix23::Matrix23;
     pub use crate::matrix::matrix::Matrix;
     use crate::cmatrix::cmatrix::CMatrix;
     use std::{ops::{Add, Index, IndexMut}, fs::OpenOptions, io::Read};
-    use core::ops::{Sub, Mul};
+    use std::ops::{Sub, Mul};
 
     #[derive(Debug, Default, Clone)]
     pub struct Matrix3<T: Num + Default + Copy + PartialOrd> {
@@ -54,7 +55,7 @@ pub mod matrix3 {
             let mut file = OpenOptions::new().read(true)
                 .open(filename.clone()).expect(&format!("Can't open file with filename {filename}"));
 
-            let mut s = String::new();;
+            let mut s = String::new();
 
             file.read_to_string(&mut s).expect(&format!("Can't read file with filename {filename}"));
 

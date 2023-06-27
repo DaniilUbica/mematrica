@@ -1,12 +1,14 @@
 pub mod cmatrix {
+    extern crate num;
+
     pub use crate::cmatrix_trait::cmatrix_trait::CMatrixTrait;
     pub use crate::matrix::matrix::Matrix;
     use crate::matrix2::matrix2::Matrix2;
     use crate::matrix3::matrix3::Matrix3;
     
-    use num::Num;
+    use self::num::Num;
     use std::{ops::{Add, Index, IndexMut}, fs::OpenOptions, io::Read};
-    use core::ops::{Sub, Mul};
+    use std::ops::{Sub, Mul};
 
     #[derive(Debug, Default, Clone)]
     pub struct CMatrix<T: Num + Default + Clone + PartialOrd> {

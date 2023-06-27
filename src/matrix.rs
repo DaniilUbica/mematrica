@@ -1,5 +1,7 @@
 pub mod matrix {
-    use num::Num;
+    extern crate num;
+    
+    use self::num::Num;
     pub use std::ops::Add;
 
     use crate::{CMatrix, CMatrixTrait};
@@ -159,11 +161,11 @@ pub mod matrix {
             let columns = self.get_columns();
             let mut aug_matrix = self.get_elements();
 
-            if (rows != columns) {
+            if rows != columns {
                 panic!("Can't inverse this matrix! Maybe rows != columns?");
             }
 
-            if (self.det() == T::zero()) {
+            if self.det() == T::zero() {
                 panic!("Can't inverse this matrix! determinant = 0");
             }
 

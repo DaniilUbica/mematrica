@@ -1,12 +1,14 @@
 pub mod matrix2 {
+    extern crate num;
+
     use std::fs::OpenOptions;
     use std::io::Read;
     use std::ops::Index;
     use std::ops::Add;
-    use core::ops::{Sub, Mul};
+    use std::ops::{Sub, Mul};
     use std::ops::IndexMut;
 
-    use num::Num;
+    use self::num::Num;
     pub use crate::matrix23_trait::matrix23::Matrix23;
     pub use crate::matrix::matrix::Matrix;
     pub use crate::cmatrix::cmatrix::CMatrix;

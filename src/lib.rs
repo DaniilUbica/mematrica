@@ -1,7 +1,19 @@
-//! # matrix_lib
+//! # mematrica
 //!
 //! An easy to use library for working with matrices
-
+//! ## Example
+//! ```rust
+//! extern crate mematrica;
+//! 
+//! use mematrica::*;
+//!
+//! let mut matrix_2x2 = Matrix2::new(1, 2, 3, 4);
+//!   
+//! let double = matrix_2x2 * 2;
+//!
+//! assert_eq!(vec![vec![2, 4], vec![6, 8]], double.get_elements());
+//!
+//! ```
 mod matrix23_trait; 
 mod cmatrix_trait;
 mod matrix;
@@ -15,5 +27,6 @@ pub mod cmatrix;
 pub use matrix23_trait::matrix23::Matrix23;
 pub use cmatrix_trait::cmatrix_trait::CMatrixTrait;
 pub use matrix::matrix::*;
-pub use matrix3::matrix3::Matrix3;
+pub use cmatrix::cmatrix::*;
+pub use matrix3::matrix3::*;
 pub use matrix2::matrix2::*;

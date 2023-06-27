@@ -1,5 +1,7 @@
 pub mod matrix23 {
-    use num::Num;
+    extern crate num;
+
+    use self::num::Num;
 
     pub trait Matrix23<T: Num + Default + Clone + std::str::FromStr> {
         /// Creates a matrix with zero as its elements

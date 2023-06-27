@@ -1,6 +1,7 @@
 pub mod cmatrix_trait {
+    extern crate num;
     
-    use num::Num;
+    use self::num::Num;
 
     pub trait CMatrixTrait<T: Num + Default + Clone + std::str::FromStr> {
         /// Creates a matrix of custom size with zero as its elements
