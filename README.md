@@ -22,12 +22,12 @@ mematrica = "0.1.1"
 
 ## Examples
 ```rust
-extern crate matrix_lib;
+extern crate mematrica;
 
-use matrix_lib::*;
+use mematrica::*;
 
 fn main() {
-    let mut matrix_2x2 = Matrix2::<i32>::new(1, 2, 3, 4); // creates a matrix 2x2 with elements 1, 2, 3, 4
+    let mut matrix_2x2 = Matrix2::new(1, 2, 3, 4); // creates a matrix 2x2 with elements 1, 2, 3, 4
     
     let double = matrix_2x2 * 2; // multiplies matrix on 2
 
@@ -37,9 +37,9 @@ fn main() {
 
 ### Using from_vec()
 ```rust
-extern crate matrix_lib;
+extern crate mematrica;
 
-use matrix_lib::*;
+use mematrica::*;
 
 fn main() {
     let matrix_2x2 = Matrix2::from_vec_as_rows(vec![1, 2]);
@@ -58,12 +58,12 @@ fn main() {
 
 ### Get element by index
 ```rust
-extern crate matrix_lib;
+extern crate mematrica;
 
-use matrix_lib::*;
+use mematrica::*;
 
 fn main() {
-    let mut matrix_2x2 = Matrix2::<i32>::new(1, 2, 3, 4);
+    let mut matrix_2x2 = Matrix2::new(1, 2, 3, 4);
 
     assert_eq!(1, matrix_2x2[(0, 0)]);
 
@@ -74,9 +74,9 @@ fn main() {
 ```
 ### Elementary operations
 ```rust
-extern crate matrix_lib;
+extern crate mematrica;
 
-use matrix_lib::*;
+use mematrica::*;
 
 fn main() {
     let m1 = CMatrix::from_element(2, 2, 4);
