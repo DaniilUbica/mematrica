@@ -40,7 +40,7 @@ extern crate matrix_lib;
 use matrix_lib::*;
 
 fn main() {
-    let mut matrix_2x2 = Matrix2::from_vec_as_rows(vec![1, 2]);
+    let matrix_2x2 = Matrix2::from_vec_as_rows(vec![1, 2]);
 
     assert_eq!(vec![vec![1, 2], vec![1, 2]], matrix_2x2.get_elements()); 
 }
@@ -63,7 +63,11 @@ use matrix_lib::*;
 fn main() {
     let mut matrix_2x2 = Matrix2::<i32>::new(1, 2, 3, 4);
 
-    assert_eq!(1, matrix_2x2[(0, 0)]); 
+    assert_eq!(1, matrix_2x2[(0, 0)]);
+
+    // change element
+    matrix[(0, 0)] = 2;
+    assert_eq!(2, matrix_2x2[(0, 0)]);
 }
 ```
 ### Elementary operations
