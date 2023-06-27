@@ -9,7 +9,7 @@ repository = "https://github.com/DaniilUbica/mematrica"
 # documentation = "https://docs.rs/matrix"
 readme = "README.md"
 categories = ["science"]
-keywords = ["linear-algebra, matrix"]
+keywords = ["linear-algebra"]
 
 [dependencies]
 num = "*"
