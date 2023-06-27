@@ -1,4 +1,4 @@
-# mematrica [![Package][[package-img](https://img.shields.io/crates/v/mematrica.svg)]][[package-url](https://crates.io/crates/mematrica)] [![Documentation][[documentation-img](https://img.shields.io/docsrs/mematrica/latest)]][[documentation-url](https://docs.rs/mematrica)]
+# mematrica [![Package][https://img.shields.io/crates/v/mematrica.svg]][[package-url](https://crates.io/crates/mematrica)] [![Documentation][[documentation-img](https://img.shields.io/docsrs/mematrica/latest)]][[documentation-url](https://docs.rs/mematrica)]
 
 ## an easy to use library for working with matrices.
 
