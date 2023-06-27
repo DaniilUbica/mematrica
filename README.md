@@ -44,7 +44,7 @@ use matrix_lib::*;
 fn main() {
     let mut matrix_2x2 = Matrix2::<i32>::new(1, 2, 3, 4);
 
-    assert_eq!(1, matrix_2x2[0, 0]); 
+    assert_eq!(1, matrix_2x2[(0, 0)]); 
 }
 ```
 ### Elementary operations
@@ -57,6 +57,6 @@ fn main() {
     let mut m1 = CMatrix::from_element(2, 2, 4);
     let m2 = Matrix2::from_element(2);
 
-    assert_eq!(vec![vec![16, 16], vec![16, 16]], m1*m2); 
+    assert_eq!(vec![vec![16, 16], vec![16, 16]], m1*m2); //also can use '+' '-'
 }
 ```
