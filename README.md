@@ -18,7 +18,7 @@
 ```toml
 [dependencies]
 mematrica = "0.1.3"
-
+```
 ## Examples
 ```rust
 extern crate mematrica;
