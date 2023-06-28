@@ -48,7 +48,7 @@ fn main() {
 }
 ```
 
-### `to_file` & `from_file` example
+### to_file() & from_file() example
 ```rust
 extern crate mematrica;
 
