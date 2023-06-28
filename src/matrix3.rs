@@ -1,79 +1,135 @@
 pub mod matrix3 {
     extern crate num;
-    
+
     use self::num::Num;
-    pub use crate::matrix23_trait::matrix23::Matrix23;
-    pub use crate::matrix::matrix::Matrix;
     use crate::cmatrix::cmatrix::CMatrix;
-    use std::{ops::{Add, Index, IndexMut}, fs::OpenOptions, io::Read};
-    use std::ops::{Sub, Mul};
+    pub use crate::matrix::matrix::Matrix;
+    pub use crate::matrix23_trait::matrix23::Matrix23;
+    use std::ops::{Mul, Sub};
+    use std::{
+        fs::OpenOptions,
+        io::Read,
+        ops::{Add, Index, IndexMut},
+    };
 
     #[derive(Debug, Default, Clone)]
-    pub struct Matrix3<T: Num + Default + Copy + PartialOrd> {
+    pub struct Matrix3<T: Num + Default + Copy + PartialOrd + std::fmt::Debug> {
         rows: usize,
         columns: usize,
         elems: Vec<Vec<T>>,
     }
 
-    impl<T: Num + Default + Copy + PartialOrd> Matrix3<T> {
-        pub fn new(m11: T, m12: T, m13: T, m21: T, m22: T, m23: T, m31: T, m32: T, m33: T,) -> Matrix3<T> {
-            let e = vec![vec![m11, m12, m13], vec![m21, m22, m23], vec![m31, m32, m33]];
-            Matrix3 { rows: 3, columns: 3, elems: e }
+    impl<T: Num + Default + Copy + PartialOrd + std::fmt::Debug> Matrix3<T> {
+        pub fn new(
+            m11: T,
+            m12: T,
+            m13: T,
+            m21: T,
+            m22: T,
+            m23: T,
+            m31: T,
+            m32: T,
+            m33: T,
+        ) -> Matrix3<T> {
+            let e = vec![
+                vec![m11, m12, m13],
+                vec![m21, m22, m23],
+                vec![m31, m32, m33],
+            ];
+            Matrix3 {
+                rows: 3,
+                columns: 3,
+                elems: e,
+            }
         }
     }
 
-    impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr> Matrix23<T> for Matrix3<T> {
+    impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug> Matrix23<T>
+        for Matrix3<T>
+    {
         fn zero() -> Self {
-            let e = vec![vec![T::zero(), T::zero(), T::zero()], 
-            vec![T::zero(), T::zero(), T::zero()], 
-            vec![T::zero(), T::zero(), T::zero()]
+            let e = vec![
+                vec![T::zero(), T::zero(), T::zero()],
+                vec![T::zero(), T::zero(), T::zero()],
+                vec![T::zero(), T::zero(), T::zero()],
             ];
-            Matrix3 { rows: 3, columns: 3, elems: e }
+            Matrix3 {
+                rows: 3,
+                columns: 3,
+                elems: e,
+            }
         }
 
         fn one() -> Self {
-            let e = vec![vec![T::one(), T::one(), T::one()], 
-            vec![T::one(), T::one(), T::one()], 
-            vec![T::one(), T::one(), T::one()]
+            let e = vec![
+                vec![T::one(), T::one(), T::one()],
+                vec![T::one(), T::one(), T::one()],
+                vec![T::one(), T::one(), T::one()],
             ];
 
-            Matrix3 { rows: 3, columns: 3, elems: e }
+            Matrix3 {
+                rows: 3,
+                columns: 3,
+                elems: e,
+            }
         }
 
         fn identity() -> Self {
-            let e = vec![vec![T::one(), T::zero(), T::zero()], 
-            vec![T::zero(), T::one(), T::zero()], 
-            vec![T::zero(), T::zero(), T::one()]
+            let e = vec![
+                vec![T::one(), T::zero(), T::zero()],
+                vec![T::zero(), T::one(), T::zero()],
+                vec![T::zero(), T::zero(), T::one()],
             ];
 
-            Matrix3 { rows: 3, columns: 3, elems: e }
+            Matrix3 {
+                rows: 3,
+                columns: 3,
+                elems: e,
+            }
         }
 
-        fn from_file(filename: String, delimiter: char) -> Self 
-        where <T as std::str::FromStr>::Err: std::fmt::Debug,
+        fn from_file(filename: String, delimiter: char) -> Self
+        where
+            <T as std::str::FromStr>::Err: std::fmt::Debug,
         {
-            let mut file = OpenOptions::new().read(true)
-                .open(filename.clone()).expect(&format!("Can't open file with filename {filename}"));
+            let mut file = OpenOptions::new()
+                .read(true)
+                .open(filename.clone())
+                .expect(&format!("Can't open file with filename {filename}"));
 
             let mut s = String::new();
 
-            file.read_to_string(&mut s).expect(&format!("Can't read file with filename {filename}"));
+            file.read_to_string(&mut s)
+                .expect(&format!("Can't read file with filename {filename}"));
 
-            let e: Vec<&str> = s.split(delimiter).collect();
+            s = s.trim().to_string();
 
-            let e: Vec<T> = e.iter().map(|c| {
-                c.parse().unwrap()
-            }).collect();
+            let mut e: Vec<&str> = s.split(delimiter).collect();
+
+            if e.len() < 9 {
+                for _ in e.len()..9 {
+                    e.push("0");
+                }
+            }
+
+            let e: Vec<T> = e
+                .iter()
+                .map(|c| {
+                    c.parse()
+                        .expect("Can't parse file. Maybe some errors in delimiters?")
+                })
+                .collect();
 
             Matrix3::new(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8])
         }
 
         fn from_element(e: T) -> Self {
-            let e = vec![vec![e, e, e], 
-            vec![e, e, e], 
-            vec![e, e, e]
-            ];
-            Matrix3 { rows: 3, columns: 3, elems: e }
+            let e = vec![vec![e, e, e], vec![e, e, e], vec![e, e, e]];
+            Matrix3 {
+                rows: 3,
+                columns: 3,
+                elems: e,
+            }
         }
 
         fn from_vec_as_columns(v: Vec<T>) -> Self {
@@ -86,12 +142,17 @@ pub mod matrix3 {
             while t.len() < 3 {
                 t.push(T::zero());
             }
-            
-            let e = vec![vec![t[0], t[0], t[0]], 
-            vec![t[1], t[1], t[1]],
-            vec![t[2], t[2], t[2]],
+
+            let e = vec![
+                vec![t[0], t[0], t[0]],
+                vec![t[1], t[1], t[1]],
+                vec![t[2], t[2], t[2]],
             ];
-            Matrix3 { rows: 3, columns: 3, elems: e }
+            Matrix3 {
+                rows: 3,
+                columns: 3,
+                elems: e,
+            }
         }
 
         fn from_vec_as_rows(v: Vec<T>) -> Self {
@@ -105,15 +166,22 @@ pub mod matrix3 {
                 t.push(T::zero());
             }
 
-            let e = vec![vec![t[0], t[1], t[2]], 
-            vec![t[0], t[1], t[2]],
-            vec![t[0], t[1], t[2]],
+            let e = vec![
+                vec![t[0], t[1], t[2]],
+                vec![t[0], t[1], t[2]],
+                vec![t[0], t[1], t[2]],
             ];
-            Matrix3 { rows: 3, columns: 3, elems: e }
+            Matrix3 {
+                rows: 3,
+                columns: 3,
+                elems: e,
+            }
         }
     }
 
-    impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr> Matrix<T> for Matrix3<T> {
+    impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug> Matrix<T>
+        for Matrix3<T>
+    {
         fn resize(&mut self) {
             self.rows = self.elems.len();
             self.columns = self.elems.first().unwrap().len();
@@ -137,14 +205,15 @@ pub mod matrix3 {
         fn set_elements(&mut self, v: Vec<Vec<T>>) {
             if self.columns == v.len() && self.columns == v.first().unwrap().len() {
                 self.elems = v;
-            }
-            else {
+            } else {
                 panic!("Can't make Matrix3 from this elements! Wrong size maybe?");
             }
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd> Add<Matrix3<T>> for Matrix3<T> {
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug>
+        Add<Matrix3<T>> for Matrix3<T>
+    {
         type Output = Matrix3<T>;
 
         fn add(self, rhs: Matrix3<T>) -> Matrix3<T> {
@@ -157,11 +226,17 @@ pub mod matrix3 {
                 }
             }
 
-            Matrix3 { rows: self.rows, columns: self.columns, elems: v }
+            Matrix3 {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Add<CMatrix<T>> for Matrix3<T> {
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+        Add<CMatrix<T>> for Matrix3<T>
+    {
         type Output = Matrix3<T>;
 
         fn add(self, rhs: CMatrix<T>) -> Matrix3<T> {
@@ -175,16 +250,21 @@ pub mod matrix3 {
                         v[i][j] = v[i][j] + r[i][j];
                     }
                 }
-            }
-            else {
+            } else {
                 panic!("Can't fold this matrices: self.columns != rhs.columns || self.elems != rhs.elems");
             }
 
-            Matrix3 { rows: self.rows, columns: self.columns, elems: v }
+            Matrix3 {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Sub<Matrix3<T>> for Matrix3<T> {
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+        Sub<Matrix3<T>> for Matrix3<T>
+    {
         type Output = Matrix3<T>;
 
         fn sub(self, rhs: Matrix3<T>) -> Matrix3<T> {
@@ -197,11 +277,17 @@ pub mod matrix3 {
                 }
             }
 
-            Matrix3 { rows: self.rows, columns: self.columns, elems: v }
+            Matrix3 {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Sub<CMatrix<T>> for Matrix3<T> {
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+        Sub<CMatrix<T>> for Matrix3<T>
+    {
         type Output = Matrix3<T>;
 
         fn sub(self, rhs: CMatrix<T>) -> Matrix3<T> {
@@ -215,16 +301,21 @@ pub mod matrix3 {
                         v[i][j] = v[i][j] - r[i][j];
                     }
                 }
-            }
-            else {
+            } else {
                 panic!("Can't fold this matrices: self.columns != rhs.columns || self.elems != rhs.elems");
             }
 
-            Matrix3 { rows: self.rows, columns: self.columns, elems: v }
+            Matrix3 {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<Matrix3<T>> for Matrix3<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+        Mul<Matrix3<T>> for Matrix3<T>
+    {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: Matrix3<T>) -> CMatrix<T> {
@@ -233,7 +324,9 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<T> for Matrix3<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug> Mul<T>
+        for Matrix3<T>
+    {
         type Output = Matrix3<T>;
 
         fn mul(self, rhs: T) -> Matrix3<T> {
@@ -249,7 +342,9 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<CMatrix<T>> for Matrix3<T> {
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+        Mul<CMatrix<T>> for Matrix3<T>
+    {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: CMatrix<T>) -> CMatrix<T> {
@@ -258,7 +353,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd> Index<(usize, usize)> for Matrix3<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> Index<(usize, usize)> for Matrix3<T> {
         type Output = T;
 
         fn index(&self, index: (usize, usize)) -> &Self::Output {
@@ -266,13 +361,13 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd> IndexMut<(usize, usize)> for Matrix3<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> IndexMut<(usize, usize)> for Matrix3<T> {
         fn index_mut(&mut self, index: (usize, usize)) -> &mut T {
             &mut self.elems[index.0][index.1]
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd> Index<usize> for Matrix3<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> Index<usize> for Matrix3<T> {
         type Output = Vec<T>;
 
         fn index(&self, index: usize) -> &Self::Output {
@@ -280,7 +375,7 @@ pub mod matrix3 {
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd> IndexMut<usize> for Matrix3<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> IndexMut<usize> for Matrix3<T> {
         fn index_mut(&mut self, index: usize) -> &mut Vec<T> {
             &mut self.elems[index]
         }
@@ -289,14 +384,14 @@ pub mod matrix3 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Matrix3, Matrix23, Matrix};
+    use crate::{Matrix, Matrix23, Matrix3};
 
     #[test]
     fn matrix3_i32_add_test() {
         let m = Matrix3::<i32>::one();
         let m2 = Matrix3::<i32>::one();
 
-        assert_eq!((m+m2)[(0,0)], 2);
+        assert_eq!((m + m2)[(0, 0)], 2);
     }
 
     #[test]
@@ -304,7 +399,7 @@ mod tests {
         let m = Matrix3::<f32>::one();
         let m2 = Matrix3::<f32>::one();
 
-        assert_eq!((m+m2)[(0,0)], 2.0);
+        assert_eq!((m + m2)[(0, 0)], 2.0);
     }
 
     #[test]
@@ -312,7 +407,7 @@ mod tests {
         let m = Matrix3::<i32>::one();
         let m2 = Matrix3::<i32>::one();
 
-        assert_eq!((m-m2)[(0,0)], 0);
+        assert_eq!((m - m2)[(0, 0)], 0);
     }
 
     #[test]
@@ -320,28 +415,28 @@ mod tests {
         let m = Matrix3::<f32>::one();
         let m2 = Matrix3::<f32>::one();
 
-        assert_eq!((m-m2)[(0,0)], 0.0);
+        assert_eq!((m - m2)[(0, 0)], 0.0);
     }
 
     #[test]
     fn matrix3_mul_test() {
-        let m = Matrix3::new(1,2,3,4, 5, 6, 7, 8, 9);
-        let m2 = Matrix3::new(10,11,12,13,14,15,16,17,18);
+        let m = Matrix3::new(1, 2, 3, 4, 5, 6, 7, 8, 9);
+        let m2 = Matrix3::new(10, 11, 12, 13, 14, 15, 16, 17, 18);
 
-        assert_eq!((m.clone()*m2.clone())[(0,0)], 84);
-        assert_eq!((m.clone()*m2.clone())[(0,1)], 90);
-        assert_eq!((m.clone()*m2.clone())[(0,2)], 96);
-        assert_eq!((m.clone()*m2.clone())[(1,0)], 201);
-        assert_eq!((m.clone()*m2.clone())[(1,1)], 216);
-        assert_eq!((m.clone()*m2.clone())[(1,2)], 231);
-        assert_eq!((m.clone()*m2.clone())[(2,0)], 318);
-        assert_eq!((m.clone()*m2.clone())[(2,1)], 342);
-        assert_eq!((m.clone()*m2.clone())[(2,2)], 366);
+        assert_eq!((m.clone() * m2.clone())[(0, 0)], 84);
+        assert_eq!((m.clone() * m2.clone())[(0, 1)], 90);
+        assert_eq!((m.clone() * m2.clone())[(0, 2)], 96);
+        assert_eq!((m.clone() * m2.clone())[(1, 0)], 201);
+        assert_eq!((m.clone() * m2.clone())[(1, 1)], 216);
+        assert_eq!((m.clone() * m2.clone())[(1, 2)], 231);
+        assert_eq!((m.clone() * m2.clone())[(2, 0)], 318);
+        assert_eq!((m.clone() * m2.clone())[(2, 1)], 342);
+        assert_eq!((m.clone() * m2.clone())[(2, 2)], 366);
     }
 
     #[test]
     fn matrix3_det_test() {
-        let m = Matrix3::new(1,4,6,2,1,2,8,3,2);
+        let m = Matrix3::new(1, 4, 6, 2, 1, 2, 8, 3, 2);
 
         assert_eq!(m.det(), 32);
     }

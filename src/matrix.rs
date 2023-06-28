@@ -1,16 +1,16 @@
 pub mod matrix {
     extern crate num;
-    
+
     use self::num::Num;
     pub use std::ops::Add;
 
     use crate::{CMatrix, CMatrixTrait};
 
-    pub trait Matrix<T: Num + Default + Clone + PartialOrd + std::str::FromStr> {
-
+    pub trait Matrix<T: Num + Default + Clone + PartialOrd + std::str::FromStr + std::fmt::Debug> {
         /// Transpose matrix
         fn transpose(&mut self)
-        where Self: Sized,
+        where
+            Self: Sized,
         {
             let r = self.get_rows();
             let c = self.get_columns();
@@ -19,7 +19,7 @@ pub mod matrix {
 
             let v = self.get_elements();
             let mut t = vec![];
-            
+
             for i in 0..r {
                 for j in 0..c {
                     t.push(v[i][j].clone());
@@ -50,11 +50,10 @@ pub mod matrix {
         fn resize(&mut self);
 
         /// Multiplies a matrix by another matrix
-        fn multiplicate<M>(&mut self, rhs: M) -> CMatrix<T> 
+        fn multiplicate<M>(&mut self, rhs: M) -> CMatrix<T>
         where
             M: Matrix<T>,
         {
-
             if self.get_columns() != rhs.get_rows() {
                 panic!("Can't multiplicate this matrices: self.columns != rhs.rows");
             }
@@ -76,7 +75,8 @@ pub mod matrix {
             for i in 0..self.get_rows() {
                 for j in 0..rhs.get_columns() {
                     for k in 0..self.get_columns() {
-                        v[i][j] = v[i][j].clone() + self.get_elements()[i][k].clone() * rhs.get_elements()[k][j].clone();
+                        v[i][j] = v[i][j].clone()
+                            + self.get_elements()[i][k].clone() * rhs.get_elements()[k][j].clone();
                     }
                 }
             }
@@ -90,7 +90,6 @@ pub mod matrix {
 
         /// Counts determinant of matrix
         fn det(&self) -> T {
-
             if self.get_rows() != self.get_columns() {
                 panic!("Can't find determinant! Maybe rows != columns?");
             }
@@ -103,7 +102,7 @@ pub mod matrix {
 
             let n = self.get_rows();
 
-            for i in 0..n {
+            for _ in 0..n {
                 temp.push(T::zero());
             }
 
@@ -135,11 +134,12 @@ pub mod matrix {
                 for j in (i + 1)..n {
                     let num1 = temp[i].clone();
                     let num2 = mat[j][i].clone();
-    
+
                     for k in 0..n {
-                        mat[j][k] = (num1.clone() * mat[j][k].clone()) - (num2.clone() * temp[k].clone());
+                        mat[j][k] =
+                            (num1.clone() * mat[j][k].clone()) - (num2.clone() * temp[k].clone());
                     }
-    
+
                     total = total * num1;
                 }
             }
@@ -147,7 +147,7 @@ pub mod matrix {
             for i in 0..n {
                 det = det * mat[i][i].clone();
             }
-    
+
             if total == T::zero() {
                 total = T::one();
             }
@@ -177,7 +177,8 @@ pub mod matrix {
                         aug_matrix[j][i] = aug_matrix[j][i].clone() * (T::zero() - T::one());
                     }
                     if aug_matrix[max_row][i] < T::zero() {
-                        aug_matrix[max_row][i] = aug_matrix[max_row][i].clone() * (T::zero() - T::one());
+                        aug_matrix[max_row][i] =
+                            aug_matrix[max_row][i].clone() * (T::zero() - T::one());
                     }
                     if aug_matrix[j][i] > aug_matrix[max_row][i] {
                         max_row = j;
@@ -191,20 +192,22 @@ pub mod matrix {
                 let pivot = aug_matrix[i][i].clone();
 
                 for j in i..rows {
-                    aug_matrix[i][j] =  aug_matrix[i][j].clone() / pivot.clone();
+                    aug_matrix[i][j] = aug_matrix[i][j].clone() / pivot.clone();
                 }
                 for j in 0..rows {
                     id_matrix[i][j] = id_matrix[i][j].clone() / pivot.clone();
                 }
-                
+
                 for j in 0..rows {
                     if j != i {
                         let factor = aug_matrix[j][i].clone();
                         for k in i..rows {
-                            aug_matrix[j][k] = aug_matrix[j][k].clone() - factor.clone() * aug_matrix[i][k].clone();
+                            aug_matrix[j][k] = aug_matrix[j][k].clone()
+                                - factor.clone() * aug_matrix[i][k].clone();
                         }
                         for k in 0..rows {
-                            id_matrix[j][k] = id_matrix[j][k].clone() - factor.clone() * id_matrix[i][k].clone();
+                            id_matrix[j][k] =
+                                id_matrix[j][k].clone() - factor.clone() * id_matrix[i][k].clone();
                         }
                     }
                 }
@@ -212,6 +215,34 @@ pub mod matrix {
 
             self.set_elements(id_matrix);
             self
+        }
+
+        /// Writes matrix to file
+        fn to_file(&self, filename: String, delimiter: char) {
+            use std::fs::OpenOptions;
+            use std::io::Write;
+
+            let rows = self.get_rows();
+            let columns = self.get_columns();
+            let m = self.get_elements();
+
+            let mut file = OpenOptions::new()
+                .write(true)
+                .read(true)
+                .open(filename.clone())
+                .expect(&format!("Can't open file with filename {filename}"));
+
+            for i in 0..rows {
+                for j in 0..columns {
+                    if i == rows - 1 && j == columns - 1 {
+                        write!(file, "{:?}", m[i][j])
+                            .expect(&format!("Can't write to file with filename {filename}"));
+                    } else {
+                        write!(file, "{:?}{delimiter}", m[i][j])
+                            .expect(&format!("Can't write to file with filename {filename}"));
+                    }
+                }
+            }
         }
 
         /// Returns rows amount

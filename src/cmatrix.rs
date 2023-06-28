@@ -5,19 +5,25 @@ pub mod cmatrix {
     pub use crate::matrix::matrix::Matrix;
     use crate::matrix2::matrix2::Matrix2;
     use crate::matrix3::matrix3::Matrix3;
-    
+
     use self::num::Num;
-    use std::{ops::{Add, Index, IndexMut}, fs::OpenOptions, io::Read};
-    use std::ops::{Sub, Mul};
+    use std::ops::{Mul, Sub};
+    use std::{
+        fs::OpenOptions,
+        io::Read,
+        ops::{Add, Index, IndexMut},
+    };
 
     #[derive(Debug, Default, Clone)]
-    pub struct CMatrix<T: Num + Default + Clone + PartialOrd> {
+    pub struct CMatrix<T: Num + Default + Clone + PartialOrd + std::fmt::Debug> {
         rows: usize,
         columns: usize,
         elems: Vec<Vec<T>>,
     }
 
-    impl<T: Num + Default + Clone + PartialOrd + std::str::FromStr> CMatrixTrait<T> for CMatrix<T> {
+    impl<T: Num + Default + Clone + PartialOrd + std::str::FromStr + std::fmt::Debug>
+        CMatrixTrait<T> for CMatrix<T>
+    {
         fn zero(rows: usize, columns: usize) -> Self {
             let mut e = vec![];
             let mut v = vec![];
@@ -30,7 +36,11 @@ pub mod cmatrix {
                 e.push(v.clone());
             }
 
-            CMatrix { rows, columns, elems: e }
+            CMatrix {
+                rows,
+                columns,
+                elems: e,
+            }
         }
 
         fn one(rows: usize, columns: usize) -> Self {
@@ -45,7 +55,11 @@ pub mod cmatrix {
                 e.push(v.clone());
             }
 
-            CMatrix { rows, columns, elems: e }
+            CMatrix {
+                rows,
+                columns,
+                elems: e,
+            }
         }
 
         fn identity(rows: usize, columns: usize) -> Self {
@@ -53,31 +67,51 @@ pub mod cmatrix {
             let mut m = m.get_elements();
 
             for i in 0..rows {
-                for j in 0..columns {
+                for _ in 0..columns {
                     m[i][i] = T::one();
                 }
             }
 
-            CMatrix { rows, columns, elems: m }
+            CMatrix {
+                rows,
+                columns,
+                elems: m,
+            }
         }
 
-        fn from_file(filename: String, delimiter: char, rows: usize, columns: usize) -> Self 
-        where <T as std::str::FromStr>::Err: std::fmt::Debug,
+        fn from_file(filename: String, delimiter: char, rows: usize, columns: usize) -> Self
+        where
+            <T as std::str::FromStr>::Err: std::fmt::Debug,
         {
-            let mut file = OpenOptions::new().read(true)
-                .open(filename.clone()).expect(&format!("Can't open file with filename {filename}"));
+            let mut file = OpenOptions::new()
+                .read(true)
+                .open(filename.clone())
+                .expect(&format!("Can't open file with filename {filename}"));
 
             let mut s = String::new();
 
-            file.read_to_string(&mut s).expect(&format!("Can't read file with filename {filename}"));
+            file.read_to_string(&mut s)
+                .expect(&format!("Can't read file with filename {filename}"));
 
-            let e: Vec<&str> = s.split(delimiter).collect();
+            s = s.trim().to_string();
 
-            let mut e: Vec<T> = e.iter().map(|c| {
-                c.parse().unwrap()
-            }).collect();
+            let mut e: Vec<&str> = s.split(delimiter).collect();
 
-            let t = rows*columns;
+            if e.len() < rows * columns {
+                for _ in e.len()..rows * columns {
+                    e.push("0");
+                }
+            }
+
+            let mut e: Vec<T> = e
+                .iter()
+                .map(|c| {
+                    c.parse()
+                        .expect("Can't parse file. Maybe some errors in delimiters?")
+                })
+                .collect();
+
+            let t = rows * columns;
 
             for _ in 0..t {
                 if e.len() < t {
@@ -90,7 +124,7 @@ pub mod cmatrix {
 
             let mut j = 0;
             while j < e.len() {
-                for i in 0..rows {
+                for _ in 0..rows {
                     q.push(e[j].clone());
                     j += 1;
                 }
@@ -117,7 +151,11 @@ pub mod cmatrix {
                 e.push(v.clone());
             }
 
-            CMatrix { rows, columns, elems: e }
+            CMatrix {
+                rows,
+                columns,
+                elems: e,
+            }
         }
 
         fn from_vec_as_columns(columns: usize, v: Vec<T>) -> Self {
@@ -133,7 +171,11 @@ pub mod cmatrix {
                 t.clear();
             }
 
-            CMatrix { rows, columns, elems: e }
+            CMatrix {
+                rows,
+                columns,
+                elems: e,
+            }
         }
 
         fn from_vec_as_rows(rows: usize, v: Vec<T>) -> Self {
@@ -145,16 +187,22 @@ pub mod cmatrix {
 
             let columns = v.len();
 
-            CMatrix { rows, columns , elems: e }
+            CMatrix {
+                rows,
+                columns,
+                elems: e,
+            }
         }
     }
-    
-    impl<T: Num + Default + Clone + PartialOrd + std::str::FromStr> Matrix<T> for CMatrix<T> {
+
+    impl<T: Num + Default + Clone + PartialOrd + std::str::FromStr + std::fmt::Debug> Matrix<T>
+        for CMatrix<T>
+    {
         fn resize(&mut self) {
             self.rows = self.elems.len();
             self.columns = self.elems.first().unwrap().len();
         }
-        
+
         fn get_columns(&self) -> usize {
             self.columns
         }
@@ -176,7 +224,17 @@ pub mod cmatrix {
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Add<Matrix3<T>> for CMatrix<T> {
+    impl<
+            T: Add<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Add<Matrix3<T>> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn add(self, rhs: Matrix3<T>) -> CMatrix<T> {
@@ -189,16 +247,29 @@ pub mod cmatrix {
                         v[i][j] = v[i][j] + r[i][j];
                     }
                 }
-            }
-            else {
+            } else {
                 panic!("Can't fold this matrices: self.columns != rhs.columns || self.rows != rhs.rows");
             }
 
-            CMatrix { rows: self.rows, columns: self.columns, elems: v }
+            CMatrix {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Add<Matrix2<T>> for CMatrix<T> {
+    impl<
+            T: Add<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Add<Matrix2<T>> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn add(self, rhs: Matrix2<T>) -> CMatrix<T> {
@@ -211,16 +282,29 @@ pub mod cmatrix {
                         v[i][j] = v[i][j] + r[i][j];
                     }
                 }
-            }
-            else {
+            } else {
                 panic!("Can't fold this matrices: self.columns != rhs.columns || self.rows != rhs.rows");
             }
-            
-            CMatrix { rows: self.rows, columns: self.columns, elems: v }
+
+            CMatrix {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Add<CMatrix<T>> for CMatrix<T> {
+    impl<
+            T: Add<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Add<CMatrix<T>> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn add(self, rhs: CMatrix<T>) -> CMatrix<T> {
@@ -234,16 +318,29 @@ pub mod cmatrix {
                         v[i][j] = v[i][j] + r[i][j];
                     }
                 }
-            }
-            else {
+            } else {
                 panic!("Can't fold this matrices: self.columns != rhs.columns || self.rows != rhs.rows");
             }
 
-            CMatrix { rows: self.rows, columns: self.columns, elems: v }
+            CMatrix {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Sub<Matrix3<T>> for CMatrix<T> {
+    impl<
+            T: Sub<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Sub<Matrix3<T>> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn sub(self, rhs: Matrix3<T>) -> CMatrix<T> {
@@ -256,16 +353,29 @@ pub mod cmatrix {
                         v[i][j] = v[i][j] - r[i][j];
                     }
                 }
-            }
-            else {
+            } else {
                 panic!("Can't fold this matrices: self.columns != rhs.columns || self.rows != rhs.rows");
             }
 
-            CMatrix { rows: self.rows, columns: self.columns, elems: v }
+            CMatrix {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Sub<Matrix2<T>> for CMatrix<T> {
+    impl<
+            T: Sub<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Sub<Matrix2<T>> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn sub(self, rhs: Matrix2<T>) -> CMatrix<T> {
@@ -278,16 +388,29 @@ pub mod cmatrix {
                         v[i][j] = v[i][j] - r[i][j];
                     }
                 }
-            }
-            else {
+            } else {
                 panic!("Can't fold this matrices: self.columns != rhs.columns || self.rows != rhs.rows");
             }
-            
-            CMatrix { rows: self.rows, columns: self.columns, elems: v }
+
+            CMatrix {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Sub<CMatrix<T>> for CMatrix<T> {
+    impl<
+            T: Sub<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Sub<CMatrix<T>> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn sub(self, rhs: CMatrix<T>) -> CMatrix<T> {
@@ -301,16 +424,29 @@ pub mod cmatrix {
                         v[i][j] = v[i][j] - r[i][j];
                     }
                 }
-            }
-            else {
+            } else {
                 panic!("Can't fold this matrices: self.columns != rhs.columns || self.rows != rhs.rows");
             }
 
-            CMatrix { rows: self.rows, columns: self.columns, elems: v }
+            CMatrix {
+                rows: self.rows,
+                columns: self.columns,
+                elems: v,
+            }
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<Matrix3<T>> for CMatrix<T> {
+    impl<
+            T: Mul<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Mul<Matrix3<T>> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: Matrix3<T>) -> CMatrix<T> {
@@ -319,7 +455,17 @@ pub mod cmatrix {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<T> for CMatrix<T> {
+    impl<
+            T: Mul<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Mul<T> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: T) -> CMatrix<T> {
@@ -335,7 +481,17 @@ pub mod cmatrix {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<Matrix2<T>> for CMatrix<T> {
+    impl<
+            T: Mul<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Mul<Matrix2<T>> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: Matrix2<T>) -> CMatrix<T> {
@@ -344,7 +500,17 @@ pub mod cmatrix {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr> Mul<CMatrix<T>> for CMatrix<T> {
+    impl<
+            T: Mul<Output = T>
+                + Num
+                + Default
+                + Clone
+                + Copy
+                + PartialOrd
+                + std::str::FromStr
+                + std::fmt::Debug,
+        > Mul<CMatrix<T>> for CMatrix<T>
+    {
         type Output = CMatrix<T>;
 
         fn mul(self, rhs: CMatrix<T>) -> CMatrix<T> {
@@ -353,7 +519,9 @@ pub mod cmatrix {
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd> Index<(usize, usize)> for CMatrix<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> Index<(usize, usize)>
+        for CMatrix<T>
+    {
         type Output = T;
 
         fn index(&self, index: (usize, usize)) -> &Self::Output {
@@ -361,13 +529,15 @@ pub mod cmatrix {
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd> IndexMut<(usize, usize)> for CMatrix<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> IndexMut<(usize, usize)>
+        for CMatrix<T>
+    {
         fn index_mut(&mut self, index: (usize, usize)) -> &mut T {
             &mut self.elems[index.0][index.1]
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd> Index<usize> for CMatrix<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> Index<usize> for CMatrix<T> {
         type Output = Vec<T>;
 
         fn index(&self, index: usize) -> &Self::Output {
@@ -375,7 +545,9 @@ pub mod cmatrix {
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd> IndexMut<usize> for CMatrix<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> IndexMut<usize>
+        for CMatrix<T>
+    {
         fn index_mut(&mut self, index: usize) -> &mut Vec<T> {
             &mut self.elems[index]
         }
@@ -384,14 +556,14 @@ pub mod cmatrix {
 
 #[cfg(test)]
 mod tests {
-    use crate::{CMatrix, CMatrixTrait, Matrix2, Matrix23, Matrix3, Matrix};
+    use crate::{CMatrix, CMatrixTrait, Matrix, Matrix2, Matrix23, Matrix3};
 
     #[test]
     fn cmatrix_i32_add_test() {
         let m = CMatrix::<i32>::one(2, 3);
         let m2 = CMatrix::<i32>::one(2, 3);
 
-        assert_eq!((m+m2)[(0,0)], 2);
+        assert_eq!((m + m2)[(0, 0)], 2);
     }
 
     #[test]
@@ -399,7 +571,7 @@ mod tests {
         let m = CMatrix::<f32>::one(2, 3);
         let m2 = CMatrix::<f32>::one(2, 3);
 
-        assert_eq!((m+m2)[(0,0)], 2.0);
+        assert_eq!((m + m2)[(0, 0)], 2.0);
     }
 
     #[test]
@@ -407,7 +579,7 @@ mod tests {
         let m = CMatrix::<i32>::one(2, 3);
         let m2 = CMatrix::<i32>::one(2, 3);
 
-        assert_eq!((m-m2)[(0,0)], 0);
+        assert_eq!((m - m2)[(0, 0)], 0);
     }
 
     #[test]
@@ -415,7 +587,7 @@ mod tests {
         let m = CMatrix::<f32>::one(2, 3);
         let m2 = CMatrix::<f32>::one(2, 3);
 
-        assert_eq!((m-m2)[(0,0)], 0.0);
+        assert_eq!((m - m2)[(0, 0)], 0.0);
     }
 
     #[test]
@@ -424,7 +596,7 @@ mod tests {
         let m = CMatrix::from_element(2, 3, 2);
         let m2 = CMatrix::from_element(2, 3, 2);
 
-        assert_eq!((m*m2)[(0,0)], 1);
+        assert_eq!((m * m2)[(0, 0)], 1);
     }
 
     #[test]
@@ -432,10 +604,10 @@ mod tests {
         let m = CMatrix::from_element(2, 3, 2);
         let m2 = CMatrix::from_element(3, 2, 2);
 
-        assert_eq!((m.clone()*m2.clone())[(0,0)], 12);
-        assert_eq!((m.clone()*m2.clone())[(0,1)], 12);
-        assert_eq!((m.clone()*m2.clone())[(1,0)], 12);
-        assert_eq!((m.clone()*m2.clone())[(1,1)], 12);
+        assert_eq!((m.clone() * m2.clone())[(0, 0)], 12);
+        assert_eq!((m.clone() * m2.clone())[(0, 1)], 12);
+        assert_eq!((m.clone() * m2.clone())[(1, 0)], 12);
+        assert_eq!((m.clone() * m2.clone())[(1, 1)], 12);
     }
 
     #[test]
@@ -443,10 +615,10 @@ mod tests {
         let m = CMatrix::from_element(2, 2, 2);
         let m2 = Matrix2::from_element(2);
 
-        assert_eq!((m.clone()*m2.clone())[(0,0)], 8);
-        assert_eq!((m.clone()*m2.clone())[(0,1)], 8);
-        assert_eq!((m.clone()*m2.clone())[(1,0)], 8);
-        assert_eq!((m.clone()*m2.clone())[(1,1)], 8);
+        assert_eq!((m.clone() * m2.clone())[(0, 0)], 8);
+        assert_eq!((m.clone() * m2.clone())[(0, 1)], 8);
+        assert_eq!((m.clone() * m2.clone())[(1, 0)], 8);
+        assert_eq!((m.clone() * m2.clone())[(1, 1)], 8);
     }
 
     #[test]
@@ -454,17 +626,17 @@ mod tests {
         let m = CMatrix::from_element(2, 3, 2);
         let m2 = Matrix3::from_element(2);
 
-        assert_eq!((m.clone()*m2.clone())[(0,0)], 12);
-        assert_eq!((m.clone()*m2.clone())[(0,1)], 12);
-        assert_eq!((m.clone()*m2.clone())[(0,2)], 12);
-        assert_eq!((m.clone()*m2.clone())[(1,0)], 12);
-        assert_eq!((m.clone()*m2.clone())[(1,1)], 12);
-        assert_eq!((m.clone()*m2.clone())[(1,2)], 12);
+        assert_eq!((m.clone() * m2.clone())[(0, 0)], 12);
+        assert_eq!((m.clone() * m2.clone())[(0, 1)], 12);
+        assert_eq!((m.clone() * m2.clone())[(0, 2)], 12);
+        assert_eq!((m.clone() * m2.clone())[(1, 0)], 12);
+        assert_eq!((m.clone() * m2.clone())[(1, 1)], 12);
+        assert_eq!((m.clone() * m2.clone())[(1, 2)], 12);
     }
 
     #[test]
     fn cmatrix_transpose_test() {
-        let mut m = CMatrix::from_vec_as_rows(2, vec![1,2,3,4]);
+        let mut m = CMatrix::from_vec_as_rows(2, vec![1, 2, 3, 4]);
         m.transpose();
 
         assert_eq!(m.get_columns(), m.get_rows());
@@ -474,7 +646,12 @@ mod tests {
     fn cmatrix_det_test() {
         let mut m = CMatrix::from_element(4, 4, 2);
 
-        m.set_elements(vec![vec![2,0,1,6],vec![3,2,8,4],vec![4,4,4,4],vec![8,7,9,5]]);
+        m.set_elements(vec![
+            vec![2, 0, 1, 6],
+            vec![3, 2, 8, 4],
+            vec![4, 4, 4, 4],
+            vec![8, 7, 9, 5],
+        ]);
 
         assert_eq!(m.det(), 208);
     }
@@ -484,7 +661,7 @@ mod tests {
     fn cmatrix_det_panic_test() {
         let mut m = CMatrix::from_element(4, 4, 2);
 
-        m.set_elements(vec![vec![3,2,8,4],vec![4,4,4,4],vec![8,7,9,5]]);
+        m.set_elements(vec![vec![3, 2, 8, 4], vec![4, 4, 4, 4], vec![8, 7, 9, 5]]);
 
         assert_eq!(m.det(), 208);
     }
