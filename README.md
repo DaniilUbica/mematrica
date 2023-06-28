@@ -48,6 +48,22 @@ fn main() {
 }
 ```
 
+### `to_file` & `from_file` example
+```rust
+extern crate mematrica;
+
+use mematrica::*;
+
+fn main() {
+    let m = Matrix2::new(1, 2, 3, 4);
+    m.to_file(String::from("./src/bin/file.txt"), ',');
+
+    let q = Matrix2::<i32>::from_file(String::from("./src/bin/file.txt"), ',');
+
+    assert_eq!(vec![vec![1, 2], vec![3, 4]], q.get_elements());
+}
+```
+
 ### Other ways to create matrix
 - `zero`: creates a matrix with zeros as its elements
 - `one`: creates a matrix with ones as its elements
