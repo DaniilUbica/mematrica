@@ -1,6 +1,6 @@
 [package]
 name = "mematrica"
-version = "0.1.2"
+version = "0.1.3"
 license = "MIT"
 author = "Daniil Volkov"
 description = "An easy to use library for working with matrices"
