@@ -6,6 +6,24 @@ pub mod matrix {
 
     use crate::{CMatrix, CMatrixTrait};
 
+    /// An error
+    #[derive(Clone, Debug)]
+    pub struct Error(pub String);
+
+    impl std::fmt::Display for Error {
+        #[inline]
+        fn fmt(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            self.0.fmt(formatter)
+        }
+    }
+
+    impl std::error::Error for Error {
+        #[inline]
+        fn description(&self) -> &str {
+            &self.0
+        }
+    }
+
     pub trait Matrix<T: Num + Default + Clone + PartialOrd + std::str::FromStr + std::fmt::Debug> {
         /// Transpose matrix
         fn transpose(&mut self)
@@ -50,7 +68,7 @@ pub mod matrix {
         fn resize(&mut self);
 
         /// Multiplies a matrix by another matrix
-        fn multiplicate<M>(&mut self, rhs: M) -> CMatrix<T>
+        fn multiplicate<M>(&self, rhs: M) -> CMatrix<T>
         where
             M: Matrix<T>,
         {
@@ -86,6 +104,45 @@ pub mod matrix {
             c.set_elements(v);
 
             c
+        }
+
+        /// Try to multiplicate matrices
+        fn try_multiplicate<M>(&self, rhs: M) -> Result <CMatrix<T>, Error>
+        where
+            M: Matrix<T>,
+        {
+            if self.get_columns() != rhs.get_rows() {
+                return Err(Error(String::from("Can't multiplicate this matrices: self.columns != rhs.rows")));
+            }
+
+            let mut v = vec![];
+
+            for i in 0..self.get_rows() {
+                if v.len() < self.get_rows() {
+                    v.push(vec![]);
+                }
+
+                for _j in 0..rhs.get_columns() {
+                    if v[i].len() < rhs.get_columns() {
+                        v[i].push(T::zero());
+                    }
+                }
+            }
+
+            for i in 0..self.get_rows() {
+                for j in 0..rhs.get_columns() {
+                    for k in 0..self.get_columns() {
+                        v[i][j] = v[i][j].clone()
+                            + self.get_elements()[i][k].clone() * rhs.get_elements()[k][j].clone();
+                    }
+                }
+            }
+
+            let mut c = CMatrix::one(self.get_rows(), rhs.get_columns());
+
+            c.set_elements(v);
+
+            Ok(c)
         }
 
         /// Counts determinant of matrix
@@ -154,9 +211,75 @@ pub mod matrix {
 
             det / total
         }
+        /// Try to find determinant of matrix
+        fn try_det(&self) -> Result<T, Error> {
+            if self.get_rows() != self.get_columns() {
+                return Err(Error(String::from("Can't find determinant! Maybe rows != columns?")));
+            }
+
+            let mut mat = self.get_elements();
+            let elems = self.get_elements();
+            let mut temp = vec![];
+            let mut total = T::one();
+            let mut det = T::one();
+
+            let n = self.get_rows();
+
+            for _ in 0..n {
+                temp.push(T::zero());
+            }
+
+            for i in 0..n {
+                let mut index = i;
+                while index < n && elems[index][i] == T::zero() {
+                    index += 1;
+                }
+
+                if index == n {
+                    continue;
+                }
+
+                if index != i {
+                    for j in 0..n {
+                        (mat[index][j], mat[i][j]) = (mat[i][j].clone(), mat[index][j].clone());
+                    }
+
+                    let exp = index - i;
+                    if exp % 2 == 1 {
+                        det = det * (T::zero() - T::one());
+                    }
+                }
+
+                for j in 0..n {
+                    temp[j] = mat[i][j].clone();
+                }
+
+                for j in (i + 1)..n {
+                    let num1 = temp[i].clone();
+                    let num2 = mat[j][i].clone();
+
+                    for k in 0..n {
+                        mat[j][k] =
+                            (num1.clone() * mat[j][k].clone()) - (num2.clone() * temp[k].clone());
+                    }
+
+                    total = total * num1;
+                }
+            }
+
+            for i in 0..n {
+                det = det * mat[i][i].clone();
+            }
+
+            if total == T::zero() {
+                total = T::one();
+            }
+
+            Ok(det / total)
+        }
 
         /// Counts inversed matrix
-        fn inverse(&mut self) -> &mut Self {
+        fn inverse(&mut self) {
             let rows = self.get_rows();
             let columns = self.get_columns();
             let mut aug_matrix = self.get_elements();
@@ -214,7 +337,67 @@ pub mod matrix {
             }
 
             self.set_elements(id_matrix);
-            self
+        }
+
+        /// Try to count inversed matrix
+        fn try_inverse(&mut self) -> Result<(), Error> {
+            let rows = self.get_rows();
+            let columns = self.get_columns();
+            let mut aug_matrix = self.get_elements();
+
+            if rows != columns {
+                return Err(Error(String::from("Can't inverse this matrix! Maybe rows != columns?")));
+            }
+
+            if self.det() == T::zero() {
+                panic!("Can't inverse this matrix! determinant = 0");
+            }
+
+            let mut id_matrix = CMatrix::<T>::identity(rows, columns).get_elements();
+            for i in 0..rows {
+                let mut max_row = i;
+                for j in i + 1..rows {
+                    if aug_matrix[j][i] < T::zero() {
+                        aug_matrix[j][i] = aug_matrix[j][i].clone() * (T::zero() - T::one());
+                    }
+                    if aug_matrix[max_row][i] < T::zero() {
+                        aug_matrix[max_row][i] =
+                            aug_matrix[max_row][i].clone() * (T::zero() - T::one());
+                    }
+                    if aug_matrix[j][i] > aug_matrix[max_row][i] {
+                        max_row = j;
+                    }
+                }
+                if max_row != i {
+                    aug_matrix.swap(i, max_row);
+                    id_matrix.swap(i, max_row);
+                }
+
+                let pivot = aug_matrix[i][i].clone();
+
+                for j in i..rows {
+                    aug_matrix[i][j] = aug_matrix[i][j].clone() / pivot.clone();
+                }
+                for j in 0..rows {
+                    id_matrix[i][j] = id_matrix[i][j].clone() / pivot.clone();
+                }
+
+                for j in 0..rows {
+                    if j != i {
+                        let factor = aug_matrix[j][i].clone();
+                        for k in i..rows {
+                            aug_matrix[j][k] = aug_matrix[j][k].clone()
+                                - factor.clone() * aug_matrix[i][k].clone();
+                        }
+                        for k in 0..rows {
+                            id_matrix[j][k] =
+                                id_matrix[j][k].clone() - factor.clone() * id_matrix[i][k].clone();
+                        }
+                    }
+                }
+            }
+
+            Ok(self.set_elements(id_matrix))
         }
 
         /// Writes matrix to file
@@ -243,6 +426,46 @@ pub mod matrix {
                     }
                 }
             }
+        }
+
+        /// Try to write matrix to file
+        fn try_to_file(&self, filename: String, delimiter: char) -> Result<(), Error> {
+            use std::fs::OpenOptions;
+            use std::io::Write;
+
+            let rows = self.get_rows();
+            let columns = self.get_columns();
+            let m = self.get_elements();
+
+            let file = OpenOptions::new()
+                .write(true)
+                .read(true)
+                .open(filename.clone());
+
+            let mut file = match file {
+                Ok(file) => file,
+                Err(_) => return Err(Error(format!("Can't open file with filename '{filename}'"))),
+            };
+
+            for i in 0..rows {
+                for j in 0..columns {
+                    if i == rows - 1 && j == columns - 1 {
+                        let res = write!(file, "{:?}", m[i][j]);
+                        match res {
+                            Ok(_) => (),
+                            Err(_) => return Err(Error(format!("Can't write to file with filename '{filename}'"))),
+                        }
+                    } else {
+                        let res = write!(file, "{:?}{delimiter}", m[i][j]);
+                        match res {
+                            Ok(_) => (),
+                            Err(_) => return Err(Error(format!("Can't write to file with filename '{filename}'"))),
+                        }
+                    }
+                }
+            }
+
+            Ok(())
         }
 
         /// Returns rows amount

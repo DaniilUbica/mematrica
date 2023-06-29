@@ -17,7 +17,7 @@
 ## Usage
 ```toml
 [dependencies]
-mematrica = "0.1.4"
+mematrica = "0.1.5"
 ```
 ## Examples
 ```rust

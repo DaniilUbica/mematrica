@@ -1,6 +1,7 @@
 pub mod cmatrix {
     extern crate num;
 
+    use crate::Error;
     pub use crate::cmatrix_trait::cmatrix_trait::CMatrixTrait;
     pub use crate::matrix::matrix::Matrix;
     use crate::matrix2::matrix2::Matrix2;
@@ -137,6 +138,74 @@ pub mod cmatrix {
             r.set_elements(v);
 
             r
+        }
+
+        fn try_from_file(filename: String, delimiter: char, rows: usize, columns: usize) -> Result<Self, Error>
+        where
+            <T as std::str::FromStr>::Err: std::fmt::Debug,
+        {
+            let file = OpenOptions::new()
+                .read(true)
+                .open(filename.clone());
+
+            let mut file = match file {
+                Ok(file) => file,
+                Err(_) => return Err(Error(format!("Can't open file with filename '{filename}'"))),
+            };
+
+            let mut s = String::new();
+
+            let res = file.read_to_string(&mut s);
+
+            match res {
+                Ok(_) => (),
+                Err(_) => return Err(Error(format!("Can't read file with filename '{filename}'"))),
+            };
+
+            s = s.trim().to_string();
+
+            let mut e: Vec<&str> = s.split(delimiter).collect();
+
+            if e.len() < rows * columns {
+                for _ in e.len()..rows * columns {
+                    e.push("0");
+                }
+            }
+
+            let mut e: Vec<T> = e
+                .iter()
+                .map(|c| {
+                    c.parse()
+                        .expect("Can't parse file. Maybe some errors in delimiters?")
+                })
+                .collect();
+
+            let t = rows * columns;
+
+            for _ in 0..t {
+                if e.len() < t {
+                    e.push(T::zero());
+                }
+            }
+
+            let mut v = vec![];
+            let mut q = vec![];
+
+            let mut j = 0;
+            while j < e.len() {
+                for _ in 0..rows {
+                    q.push(e[j].clone());
+                    j += 1;
+                }
+                v.push(q.clone());
+                q.clear();
+            }
+
+            let mut r = CMatrix::one(rows, columns);
+
+            r.set_elements(v);
+
+            Ok(r)
         }
 
         fn from_element(rows: usize, columns: usize, el: T) -> Self {

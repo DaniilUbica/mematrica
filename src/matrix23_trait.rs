@@ -1,6 +1,7 @@
 pub mod matrix23 {
     extern crate num;
 
+    use crate::matrix::matrix::Error;
     use self::num::Num;
 
     pub trait Matrix23<T: Num + Default + Clone + std::str::FromStr> {
@@ -13,6 +14,9 @@ pub mod matrix23 {
         /// Read matrix from file
         fn from_file(filename: String, delimiter: char) -> Self
         where <T as std::str::FromStr>::Err: std::fmt::Debug;
+        /// Try to read matrix elements from file
+        fn try_from_file(filename: String, delimiter: char) -> Result<Self, Error>
+        where <T as std::str::FromStr>::Err: std::fmt::Debug, Self : Sized;
         /// Creates a matrix from element
         fn from_element(e: T) -> Self;
         /// Creates a matrix from vector, using that elements as columns

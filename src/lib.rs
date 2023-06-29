@@ -22,7 +22,7 @@ pub mod matrix2;
 /// Matrix 3x3
 pub mod matrix3;
 /// Matrix of custom size
-pub mod cmatrix; 
+pub mod cmatrix;
 
 pub use matrix23_trait::matrix23::Matrix23;
 pub use cmatrix_trait::cmatrix_trait::CMatrixTrait;

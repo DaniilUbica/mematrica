@@ -1,10 +1,12 @@
 pub mod matrix3 {
     extern crate num;
-
-    use self::num::Num;
+    
+    use crate::Error;
     use crate::cmatrix::cmatrix::CMatrix;
     pub use crate::matrix::matrix::Matrix;
     pub use crate::matrix23_trait::matrix23::Matrix23;
+
+    use self::num::Num;
     use std::ops::{Mul, Sub};
     use std::{
         fs::OpenOptions,
@@ -122,6 +124,50 @@ pub mod matrix3 {
 
             Matrix3::new(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8])
         }
+
+        fn try_from_file(filename: String, delimiter: char) -> Result<Self, Error>
+        where
+            <T as std::str::FromStr>::Err: std::fmt::Debug,
+        {
+            let file = OpenOptions::new()
+                .read(true)
+                .open(filename.clone());
+
+            let mut file = match file {
+                Ok(file) => file,
+                Err(_) => return Err(Error(format!("Can't open file with filename '{filename}'"))),
+            };
+
+            let mut s = String::new();
+
+            let res = file.read_to_string(&mut s);
+
+            match res {
+                Ok(_) => (),
+                Err(_) => return Err(Error(format!("Can't read file with filename '{filename}'"))),
+            };
+
+            s = s.trim().to_string();
+
+            let mut e: Vec<&str> = s.split(delimiter).collect();
+
+            if e.len() < 9 {
+                for _ in e.len()..9 {
+                    e.push("0");
+                }
+            }
+
+            let e: Vec<T> = e
+                .iter()
+                .map(|c| {
+                    c.parse()
+                        .expect("Can't parse file. Maybe some errors in delimiters?")
+                })
+                .collect();
+
+            Ok(Matrix3::new(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8]))
+        }
+
 
         fn from_element(e: T) -> Self {
             let e = vec![vec![e, e, e], vec![e, e, e], vec![e, e, e]];
