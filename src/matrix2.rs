@@ -15,13 +15,13 @@ pub mod matrix2 {
     pub use crate::matrix23_trait::matrix23::Matrix23;
 
     #[derive(Debug, Default, Clone)]
-    pub struct Matrix2<T: Num + Default + Copy + std::fmt::Debug> {
+    pub struct Matrix2<T: Num + Default + Copy + std::fmt::Debug + std::convert::Into<f64>> {
         rows: usize,
         columns: usize,
         elems: Vec<Vec<T>>,
     }
 
-    impl<T: Num + Default + Copy + std::fmt::Debug> Matrix2<T> {
+    impl<T: Num + Default + Copy + std::fmt::Debug + std::convert::Into<f64>> Matrix2<T> {
         pub fn new(m11: T, m12: T, m21: T, m22: T) -> Matrix2<T> {
             let e = vec![vec![m11, m12], vec![m21, m22]];
             Matrix2 {
@@ -32,7 +32,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Num + Default + Copy + std::str::FromStr + std::fmt::Debug> Matrix23<T> for Matrix2<T> {
+    impl<T: Num + Default + Copy + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Matrix23<T> for Matrix2<T> {
         fn zero() -> Self {
             let e = vec![vec![T::zero(), T::zero()], vec![T::zero(), T::zero()]];
             Matrix2 {
@@ -186,7 +186,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug> Matrix<T>
+    impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Matrix<T>
         for Matrix2<T>
     {
         fn resize(&mut self) {
@@ -223,7 +223,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>>
         Add<Matrix2<T>> for Matrix2<T>
     {
         type Output = Matrix2<T>;
@@ -246,7 +246,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+    impl<T: Add<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>>
         Add<CMatrix<T>> for Matrix2<T>
     {
         type Output = Matrix2<T>;
@@ -274,7 +274,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>>
         Sub<Matrix2<T>> for Matrix2<T>
     {
         type Output = Matrix2<T>;
@@ -297,7 +297,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+    impl<T: Sub<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>>
         Sub<CMatrix<T>> for Matrix2<T>
     {
         type Output = Matrix2<T>;
@@ -325,7 +325,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>>
         Mul<Matrix2<T>> for Matrix2<T>
     {
         type Output = CMatrix<T>;
@@ -336,7 +336,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug> Mul<T>
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Mul<T>
         for Matrix2<T>
     {
         type Output = Matrix2<T>;
@@ -354,7 +354,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug>
+    impl<T: Mul<Output = T> + Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>>
         Mul<CMatrix<T>> for Matrix2<T>
     {
         type Output = CMatrix<T>;
@@ -365,7 +365,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> Index<(usize, usize)> for Matrix2<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug + std::convert::Into<f64>> Index<(usize, usize)> for Matrix2<T> {
         type Output = T;
 
         fn index(&self, index: (usize, usize)) -> &Self::Output {
@@ -373,13 +373,13 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> IndexMut<(usize, usize)> for Matrix2<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug + std::convert::Into<f64>> IndexMut<(usize, usize)> for Matrix2<T> {
         fn index_mut(&mut self, index: (usize, usize)) -> &mut T {
             &mut self.elems[index.0][index.1]
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> Index<usize> for Matrix2<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug + std::convert::Into<f64>> Index<usize> for Matrix2<T> {
         type Output = Vec<T>;
 
         fn index(&self, index: usize) -> &Self::Output {
@@ -387,7 +387,7 @@ pub mod matrix2 {
         }
     }
 
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug> IndexMut<usize> for Matrix2<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::fmt::Debug + std::convert::Into<f64>> IndexMut<usize> for Matrix2<T> {
         fn index_mut(&mut self, index: usize) -> &mut Vec<T> {
             &mut self.elems[index]
         }

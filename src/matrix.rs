@@ -24,7 +24,7 @@ pub mod matrix {
         }
     }
 
-    pub trait Matrix<T: Num + Default + Clone + PartialOrd + std::str::FromStr + std::fmt::Debug> {
+    pub trait Matrix<T: Num + Default + Clone + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> {
         /// Transpose matrix
         fn transpose(&mut self)
         where
@@ -466,6 +466,24 @@ pub mod matrix {
             }
 
             Ok(())
+        }
+
+        /// Counts norm of matrix
+        fn norm(&self) -> f64 
+        where
+        {
+            let rows = self.get_rows();
+            let columns = self.get_columns();
+            let elems = self.get_elements();
+            let mut norm = 0.0;
+
+            for i in 0..rows {
+                for j in 0..columns {
+                    norm = norm + elems[i][j].clone().into() * elems[i][j].clone().into();
+                }
+            }
+
+            norm.sqrt()
         }
 
         /// Returns rows amount
