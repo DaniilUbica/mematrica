@@ -4,7 +4,7 @@ pub mod matrix23 {
     use crate::{matrix::matrix::Error, CMatrix};
     use self::num::Num;
 
-    pub trait Matrix23<T: Num + Default + Clone + PartialOrd + std::fmt::Debug + std::convert::Into<f64> + std::str::FromStr> {
+    pub trait Matrix23<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> {
         /// Creates a matrix with zero as its elements
         fn zero() -> Self;
         /// Creates a matrix with one as its elements
@@ -23,8 +23,7 @@ pub mod matrix23 {
         fn from_vec_as_columns(v: Vec<T>) -> Self;
         /// Creates a matrix from vector, using that elements as rows
         fn from_vec_as_rows(v: Vec<T>) -> Self;
-
         /// Converts matrix to CMatrix
-        fn to_cmatrix(&self) -> CMatrix<T>;
+        fn to_cmatrix(self) -> CMatrix<T>;
     }
 }

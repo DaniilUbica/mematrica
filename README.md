@@ -17,7 +17,7 @@
 ## Usage
 ```toml
 [dependencies]
-mematrica = "0.1.7"
+mematrica = "0.1.8"
 ```
 ## Examples
 ```rust
@@ -100,8 +100,10 @@ fn main() {
     assert_eq!(vec![vec![16, 16], vec![16, 16]], (m1*m2).get_elements()); //also can use '+' '-'
 }
 ```
+# You can find more examples in [examples]([examples-url]) folder
 
 [documentation-img]: https://docs.rs/mematrica/badge.svg
 [documentation-url]: https://docs.rs/mematrica
 [package-img]: https://img.shields.io/crates/v/mematrica.svg
 [package-url]: https://crates.io/crates/mematrica
+[examples-url]: https://github.com/DaniilUbica/mematrica/tree/master/src/examples

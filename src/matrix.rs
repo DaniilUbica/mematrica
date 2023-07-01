@@ -24,7 +24,7 @@ pub mod matrix {
         }
     }
 
-    pub trait Matrix<T: Num + Default + Clone + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> {
+    pub trait Matrix<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> {
         /// Transpose matrix
         fn transpose(&mut self)
         where
@@ -64,10 +64,10 @@ pub mod matrix {
             self.check_size();
         }
 
-        /// Changes size of matrix, if it was formated
+        /// Changes size of matrix, if it was formated. It calls automatically
         fn resize(&mut self);
 
-        /// Checks size of matrix, if it was formated
+        /// Checks size of matrix, if it was formated. It calls automatically
         fn check_size(&self);
 
         /// Multiplies a matrix by another matrix
@@ -110,12 +110,14 @@ pub mod matrix {
         }
 
         /// Try to multiplicate matrices
-        fn try_multiplicate<M>(&self, rhs: M) -> Result <CMatrix<T>, Error>
+        fn try_multiplicate<M>(&self, rhs: M) -> Result<CMatrix<T>, Error>
         where
             M: Matrix<T>,
         {
             if self.get_columns() != rhs.get_rows() {
-                return Err(Error(String::from("Can't multiplicate this matrices: self.columns != rhs.rows")));
+                return Err(Error(String::from(
+                    "Can't multiplicate this matrices: self.columns != rhs.rows",
+                )));
             }
 
             let mut v = vec![];
@@ -145,7 +147,7 @@ pub mod matrix {
 
             c.set_elements(v);
             self.check_size();
-            
+
             Ok(c)
         }
 
@@ -220,7 +222,9 @@ pub mod matrix {
         /// Try to find determinant of matrix
         fn try_det(&self) -> Result<T, Error> {
             if self.get_rows() != self.get_columns() {
-                return Err(Error(String::from("Can't find determinant! Maybe rows != columns?")));
+                return Err(Error(String::from(
+                    "Can't find determinant! Maybe rows != columns?",
+                )));
             }
 
             let mut mat = self.get_elements();
@@ -354,7 +358,9 @@ pub mod matrix {
             let mut aug_matrix = self.get_elements();
 
             if rows != columns {
-                return Err(Error(String::from("Can't inverse this matrix! Maybe rows != columns?")));
+                return Err(Error(String::from(
+                    "Can't inverse this matrix! Maybe rows != columns?",
+                )));
             }
 
             if self.det() == T::zero() {
@@ -462,13 +468,21 @@ pub mod matrix {
                         let res = write!(file, "{:?}", m[i][j]);
                         match res {
                             Ok(_) => (),
-                            Err(_) => return Err(Error(format!("Can't write to file with filename '{filename}'"))),
+                            Err(_) => {
+                                return Err(Error(format!(
+                                    "Can't write to file with filename '{filename}'"
+                                )))
+                            }
                         }
                     } else {
                         let res = write!(file, "{:?}{delimiter}", m[i][j]);
                         match res {
                             Ok(_) => (),
-                            Err(_) => return Err(Error(format!("Can't write to file with filename '{filename}'"))),
+                            Err(_) => {
+                                return Err(Error(format!(
+                                    "Can't write to file with filename '{filename}'"
+                                )))
+                            }
                         }
                     }
                 }
@@ -478,9 +492,7 @@ pub mod matrix {
         }
 
         /// Counts norm of matrix
-        fn norm(&self) -> f64 
-        where
-        {
+        fn norm(&self) -> f64 {
             let rows = self.get_rows();
             let columns = self.get_columns();
             let elems = self.get_elements();
@@ -515,14 +527,12 @@ pub mod matrix {
             r.set_elements(f64_elems);
             r
         }
-
         /// Returns rows amount
         fn get_rows(&self) -> usize;
         /// Returns columns amount
         fn get_columns(&self) -> usize;
         /// Returns elements of matrix as Vec<Vec>
         fn get_elements(&self) -> Vec<Vec<T>>;
-
         /// Set elements to matrix
         fn set_elements(&mut self, v: Vec<Vec<T>>);
     }

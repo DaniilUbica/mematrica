@@ -1,10 +1,10 @@
 pub mod cmatrix_trait {
     extern crate num;
     
-    use crate::matrix::matrix::Error;
+    use crate::{matrix::matrix::Error, Matrix2, Matrix3};
     use self::num::Num;
 
-    pub trait CMatrixTrait<T: Num + Default + Clone + std::str::FromStr> {
+    pub trait CMatrixTrait<T: Num + Default + Clone + std::str::FromStr + std::cmp::PartialOrd + std::fmt::Debug + std::convert::Into<f64> + std::marker::Copy> {
         /// Creates a matrix of custom size with zero as its elements
         fn zero(rows: usize, columns: usize) -> Self;
         /// Creates a matrix of custom size with one as its elements
@@ -23,6 +23,14 @@ pub mod cmatrix_trait {
         fn from_vec_as_columns(columns: usize, v: Vec<T>) -> Self;
         /// Creates a matrix from this vector, using that elements as rows
         fn from_vec_as_rows(rows: usize, v: Vec<T>) -> Self;
+        /// Converts matrix to Matrix2
+        fn to_matrix2(self) -> Matrix2<T>;
+        /// Converts matrix to Matrix3
+        fn to_matrix3(self) -> Matrix3<T>;
+        /// Add a row to matrix
+        fn push(&mut self, v: Vec<T>);
+        /// Delete last row to matrix
+        fn pop(&mut self);
     }
 
 }
