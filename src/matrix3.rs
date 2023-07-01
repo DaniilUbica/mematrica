@@ -223,6 +223,13 @@ pub mod matrix3 {
                 elems: e,
             }
         }
+
+        fn to_cmatrix(&self) -> CMatrix<T> {
+            use crate::CMatrixTrait;
+            let mut c = CMatrix::zero(self.rows, self.columns);
+            c.set_elements(self.elems.clone());
+            c
+        }
     }
 
     impl<T: Num + Default + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Matrix<T>
@@ -231,8 +238,22 @@ pub mod matrix3 {
         fn resize(&mut self) {
             self.rows = self.elems.len();
             self.columns = self.elems.first().unwrap().len();
-            if self.rows != self.columns && (self.columns != 3 || self.rows != 3) {
-                panic!("Matrix3 have more than 3 elements in row or column!");
+        }
+
+        fn check_size(&self) {
+            let elems = self.get_elements();
+            let i = elems.len();
+            if i != 3 {
+                panic!("Matrix3 have more or less than 3 elements in column!");
+            }
+            let mut q = vec![];
+            for j in 0..i {
+                q.push(elems[j].len());
+            }
+            for j in 0..q.len() {
+                if q[j] != 3 {
+                    panic!("Matrix3 have more or less than 3 elements in row!");
+                }
             }
         }
 
@@ -251,6 +272,7 @@ pub mod matrix3 {
         fn set_elements(&mut self, v: Vec<Vec<T>>) {
             if self.columns == v.len() && self.columns == v.first().unwrap().len() {
                 self.elems = v;
+                self.resize();
             } else {
                 panic!("Can't make Matrix3 from this elements! Wrong size maybe?");
             }

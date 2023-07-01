@@ -60,12 +60,15 @@ pub mod matrix {
                 i = 0;
                 i += j;
             }
-
             self.set_elements(a);
+            self.check_size();
         }
 
         /// Changes size of matrix, if it was formated
         fn resize(&mut self);
+
+        /// Checks size of matrix, if it was formated
+        fn check_size(&self);
 
         /// Multiplies a matrix by another matrix
         fn multiplicate<M>(&self, rhs: M) -> CMatrix<T>
@@ -102,7 +105,7 @@ pub mod matrix {
             let mut c = CMatrix::one(self.get_rows(), rhs.get_columns());
 
             c.set_elements(v);
-
+            self.check_size();
             c
         }
 
@@ -141,12 +144,14 @@ pub mod matrix {
             let mut c = CMatrix::one(self.get_rows(), rhs.get_columns());
 
             c.set_elements(v);
-
+            self.check_size();
+            
             Ok(c)
         }
 
         /// Counts determinant of matrix
         fn det(&self) -> T {
+            self.check_size();
             if self.get_rows() != self.get_columns() {
                 panic!("Can't find determinant! Maybe rows != columns?");
             }
@@ -208,6 +213,7 @@ pub mod matrix {
             if total == T::zero() {
                 total = T::one();
             }
+            self.check_size();
 
             det / total
         }
@@ -274,6 +280,7 @@ pub mod matrix {
             if total == T::zero() {
                 total = T::one();
             }
+            self.check_size();
 
             Ok(det / total)
         }
@@ -337,6 +344,7 @@ pub mod matrix {
             }
 
             self.set_elements(id_matrix);
+            self.check_size();
         }
 
         /// Try to count inversed matrix
@@ -396,8 +404,8 @@ pub mod matrix {
                     }
                 }
             }
-
-            Ok(self.set_elements(id_matrix))
+            self.set_elements(id_matrix);
+            Ok(self.check_size())
         }
 
         /// Writes matrix to file
@@ -426,6 +434,7 @@ pub mod matrix {
                     }
                 }
             }
+            self.check_size();
         }
 
         /// Try to write matrix to file
@@ -464,7 +473,7 @@ pub mod matrix {
                     }
                 }
             }
-
+            self.check_size();
             Ok(())
         }
 
@@ -482,8 +491,29 @@ pub mod matrix {
                     norm = norm + elems[i][j].clone().into() * elems[i][j].clone().into();
                 }
             }
-
+            self.check_size();
             norm.sqrt()
+        }
+
+        /// Converts matrix' values to f64
+        fn to_f64(&mut self) -> CMatrix<f64> {
+            self.check_size();
+            let rows = self.get_rows();
+            let columns = self.get_columns();
+            let elems = self.get_elements();
+            let mut f64_elems = vec![];
+
+            for i in 0..rows {
+                let mut c = vec![];
+                for j in 0..columns {
+                    c.push(elems[i][j].clone().into())
+                }
+                f64_elems.push(c);
+            }
+
+            let mut r = CMatrix::from_element(rows, columns, 0.0);
+            r.set_elements(f64_elems);
+            r
         }
 
         /// Returns rows amount

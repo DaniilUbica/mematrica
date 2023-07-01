@@ -272,6 +272,10 @@ pub mod cmatrix {
             self.columns = self.elems.first().unwrap().len();
         }
 
+        fn check_size(&self) {
+            unimplemented!();
+        }
+
         fn get_columns(&self) -> usize {
             self.columns
         }
