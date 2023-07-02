@@ -220,9 +220,9 @@ pub mod matrix3 {
             let mut c = Matrix3::zero();
             let mut e = c.get_elements();
 
-            for i in 0..2 {
-                for j in 0..2 {
-                    e[i][j] = element;
+            for i in 0..3 {
+                for _ in 0..3 {
+                    e[i][i] = element;
                 }
             }
             c.set_elements(e);

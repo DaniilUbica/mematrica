@@ -196,8 +196,8 @@ pub mod matrix2 {
             let mut e = c.get_elements();
 
             for i in 0..2 {
-                for j in 0..2 {
-                    e[i][j] = element;
+                for _ in 0..2 {
+                    e[i][i] = element;
                 }
             }
             c.set_elements(e);
