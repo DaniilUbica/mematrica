@@ -7,21 +7,16 @@ pub mod matrix3 {
     use crate::{Error, CMatrixTrait};
 
     use self::num::Num;
-    use std::ops::{Mul, Sub};
-    use std::{
-        fs::OpenOptions,
-        io::Read,
-        ops::{Add, Index, IndexMut},
-    };
+    use std::{fs::OpenOptions, io::Read};
 
-    #[derive(Debug, Default, Clone)]
-    pub struct Matrix3<T: Num + Default + Copy + PartialOrd + std::fmt::Debug> {
-        rows: usize,
-        columns: usize,
-        elems: Vec<Vec<T>>,
+    #[derive(Debug, Default, Clone, Eq)]
+    pub struct Matrix3<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> {
+        pub(crate) rows: usize,
+        pub(crate) columns: usize,
+        pub(crate) elems: Vec<Vec<T>>,
     }
 
-    impl<T: Num + Default + Copy + PartialOrd + std::fmt::Debug + std::convert::Into<f64>> Matrix3<T> {
+    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Matrix3<T> {
         pub fn new(
             m11: T,
             m12: T,
@@ -221,6 +216,19 @@ pub mod matrix3 {
             }
         }
 
+        fn from_diagonal(element: T) -> Self {
+            let mut c = Matrix3::zero();
+            let mut e = c.get_elements();
+
+            for i in 0..2 {
+                for j in 0..2 {
+                    e[i][j] = element;
+                }
+            }
+            c.set_elements(e);
+            c
+        }
+
         fn to_cmatrix(self) -> CMatrix<T> {
             let mut c = CMatrix::zero(self.rows, self.columns);
             c.set_elements(self.elems.clone());
@@ -283,162 +291,6 @@ pub mod matrix3 {
             } else {
                 panic!("Can't make Matrix3 from this elements! Wrong size maybe?");
             }
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Add<Matrix3<T>> for Matrix3<T> {
-        type Output = Matrix3<T>;
-
-        fn add(self, rhs: Matrix3<T>) -> Matrix3<T> {
-            let mut v = self.elems.clone();
-            let r = rhs.elems;
-
-            for i in 0..self.rows {
-                for j in 0..self.columns {
-                    v[i][j] = v[i][j] + r[i][j];
-                }
-            }
-
-            Matrix3 {
-                rows: self.rows,
-                columns: self.columns,
-                elems: v,
-            }
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Add<CMatrix<T>> for Matrix3<T> {
-        type Output = Matrix3<T>;
-
-        fn add(self, rhs: CMatrix<T>) -> Matrix3<T> {
-            let mut v = self.elems.clone();
-
-            if self.columns == rhs.get_columns() && self.rows == rhs.get_rows() {
-                let r = rhs.get_elements();
-
-                for i in 0..self.rows {
-                    for j in 0..self.columns {
-                        v[i][j] = v[i][j] + r[i][j];
-                    }
-                }
-            } else {
-                panic!("Can't fold this matrices: self.columns != rhs.columns || self.elems != rhs.elems");
-            }
-
-            Matrix3 {
-                rows: self.rows,
-                columns: self.columns,
-                elems: v,
-            }
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Sub<Matrix3<T>> for Matrix3<T> {
-        type Output = Matrix3<T>;
-
-        fn sub(self, rhs: Matrix3<T>) -> Matrix3<T> {
-            let mut v = self.elems.clone();
-            let r = rhs.elems;
-
-            for i in 0..self.rows {
-                for j in 0..self.columns {
-                    v[i][j] = v[i][j] - r[i][j];
-                }
-            }
-
-            Matrix3 {
-                rows: self.rows,
-                columns: self.columns,
-                elems: v,
-            }
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Sub<CMatrix<T>> for Matrix3<T> {
-        type Output = Matrix3<T>;
-
-        fn sub(self, rhs: CMatrix<T>) -> Matrix3<T> {
-            let mut v = self.elems.clone();
-
-            if self.columns == rhs.get_columns() && self.rows == rhs.get_rows() {
-                let r = rhs.get_elements();
-
-                for i in 0..self.rows {
-                    for j in 0..self.columns {
-                        v[i][j] = v[i][j] - r[i][j];
-                    }
-                }
-            } else {
-                panic!("Can't fold this matrices: self.columns != rhs.columns || self.elems != rhs.elems");
-            }
-
-            Matrix3 {
-                rows: self.rows,
-                columns: self.columns,
-                elems: v,
-            }
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Mul<Matrix3<T>> for Matrix3<T> {
-        type Output = CMatrix<T>;
-
-        fn mul(self, rhs: Matrix3<T>) -> CMatrix<T> {
-            let m = self;
-            m.multiplicate(rhs)
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Mul<T> for Matrix3<T> {
-        type Output = Matrix3<T>;
-
-        fn mul(self, rhs: T) -> Matrix3<T> {
-            let mut v = self.clone();
-
-            for i in 0..self.rows {
-                for j in 0..self.columns {
-                    v[i][j] = v[i][j] * rhs;
-                }
-            }
-
-            v
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Mul<CMatrix<T>> for Matrix3<T> {
-        type Output = CMatrix<T>;
-
-        fn mul(self, rhs: CMatrix<T>) -> CMatrix<T> {
-            let m = self;
-            m.multiplicate(rhs)
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Index<(usize, usize)> for Matrix3<T> {
-        type Output = T;
-
-        fn index(&self, index: (usize, usize)) -> &Self::Output {
-            &self.elems[index.0][index.1]
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> IndexMut<(usize, usize)> for Matrix3<T> {
-        fn index_mut(&mut self, index: (usize, usize)) -> &mut T {
-            &mut self.elems[index.0][index.1]
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> Index<usize> for Matrix3<T> {
-        type Output = Vec<T>;
-
-        fn index(&self, index: usize) -> &Self::Output {
-            &self.elems[index]
-        }
-    }
-
-    impl<T: Num + Default + Clone + Copy + PartialOrd + std::str::FromStr + std::fmt::Debug + std::convert::Into<f64>> IndexMut<usize> for Matrix3<T> {
-        fn index_mut(&mut self, index: usize) -> &mut Vec<T> {
-            &mut self.elems[index]
         }
     }
 }

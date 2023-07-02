@@ -23,6 +23,8 @@ pub mod cmatrix_trait {
         fn from_vec_as_columns(columns: usize, v: Vec<T>) -> Self;
         /// Creates a matrix from this vector, using that elements as rows
         fn from_vec_as_rows(rows: usize, v: Vec<T>) -> Self;
+        /// Creates a matrix from this element on its diagonal. All off-diagonal elements are set to 0
+        fn from_diagonal(rows: usize, columns: usize, element: T) -> Self;
         /// Converts matrix to Matrix2
         fn to_matrix2(self) -> Matrix2<T>;
         /// Converts matrix to Matrix3

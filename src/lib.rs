@@ -24,6 +24,15 @@ pub mod matrix3;
 /// Matrix of custom size
 pub mod cmatrix;
 
+/// Implementations of operations with matrix3
+pub mod matrix3_op;
+/// Implementations of operations with matrix2
+pub mod matrix2_op;
+/// Implementations of operations with cmatrix
+pub mod cmatrix_op;
+/// Macro for creations of matrices
+pub mod macro_def;
+
 pub use matrix23_trait::matrix23::Matrix23;
 pub use cmatrix_trait::cmatrix_trait::CMatrixTrait;
 pub use matrix::matrix::*;

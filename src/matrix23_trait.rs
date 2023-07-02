@@ -23,6 +23,8 @@ pub mod matrix23 {
         fn from_vec_as_columns(v: Vec<T>) -> Self;
         /// Creates a matrix from vector, using that elements as rows
         fn from_vec_as_rows(v: Vec<T>) -> Self;
+        /// Creates a matrix from this element on its diagonal. All off-diagonal elements are set to 0
+        fn from_diagonal(element: T) -> Self;
         /// Converts matrix to CMatrix
         fn to_cmatrix(self) -> CMatrix<T>;
     }
