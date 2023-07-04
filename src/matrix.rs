@@ -527,6 +527,176 @@ pub mod matrix {
             r.set_elements(f64_elems);
             r
         }
+        
+        fn try_remove_row(&self, index: usize) -> Result<CMatrix<T>, Error> {
+            let mut elems = self.get_elements();
+            let rows = self.get_rows();
+
+            if rows <= index {
+                return Err(Error(String::from("Wrong index value!")));
+            }
+
+            elems.remove(index);
+            let mut c = CMatrix::zero(rows - 1, self.get_columns());
+            c.set_elements(elems);
+            Ok(c)
+        }
+
+        fn try_remove_column(&self, index: usize) -> Result<CMatrix<T>, Error> {
+            let mut elems = self.get_elements();
+            let columns = self.get_columns();
+
+            if columns <= index {
+                return Err(Error(String::from("Wrong index value!")));
+            }
+
+            for i in 0..columns {
+                elems[i].remove(index);
+            }
+            let mut c = CMatrix::zero(self.get_rows(), columns - 1);
+            c.set_elements(elems);
+            Ok(c)
+        }
+
+        fn try_insert_row(&self, index: usize, row: Vec<T>) -> Result<CMatrix<T>, Error> {
+            let mut elems = self.get_elements();
+            let columns = self.get_columns();
+            let rows = self.get_rows();
+
+            if row.len() != columns {
+                return Err(Error(String::from("Wrong row size!")));
+            }
+
+            elems.insert(index, row);
+            let mut c = CMatrix::zero(rows + 1, columns);
+            c.set_elements(elems);
+            Ok(c)
+        }
+
+        fn try_insert_column(&self, index: usize, column: Vec<T>) -> Result<CMatrix<T>, Error> {
+            let mut elems = self.get_elements();
+            let columns = self.get_columns();
+            let rows = self.get_rows();
+
+            if column.len() != columns {
+                return Err(Error(String::from("Wrong column size!")));
+            }
+
+            for i in 0..columns {
+                elems[i].insert(index, column[i]);
+            }
+            let mut c = CMatrix::zero(rows + 1, columns);
+            c.set_elements(elems);
+            Ok(c)
+        }
+
+        fn try_get_rows(&self, index: usize, amount: usize) -> Result<CMatrix<T>, Error> {
+            let mut elems = self.get_elements();
+            let columns = self.get_columns();
+            let rows = self.get_rows();
+
+            if amount == 0 {
+                let mut c = CMatrix::zero(rows + 1, columns);
+                c.set_elements(elems);
+                return Ok(c);
+            }
+
+            if rows <= index {
+                return Err(Error(String::from("Wrong index value!")));
+            }
+
+            if rows < index + amount {
+                return Err(Error(String::from(
+                    "Can't take that amount of rows from that index!",
+                )));
+            }
+
+            for i in 0..index {
+                elems.remove(i);
+            }
+            for i in index + amount..rows {
+                elems.remove(i);
+            }
+            let mut c = CMatrix::zero(rows + 1, columns);
+            c.set_elements(elems);
+            Ok(c)
+        }
+
+        fn try_get_columns(&self, index: usize, amount: usize) -> Result<CMatrix<T>, Error> {
+            let mut elems = self.get_elements();
+            let columns = self.get_columns();
+            let rows = self.get_rows();
+
+            if amount == 0 {
+                let mut c = CMatrix::zero(rows + 1, columns);
+                c.set_elements(elems);
+                return Ok(c);
+            }
+
+            if rows <= index {
+                return Err(Error(String::from("Wrong index value!")));
+            }
+
+            if rows < index + amount {
+                return Err(Error(String::from(
+                    "Can't take that amount of columns from that index!",
+                )));
+            }
+            for j in 0..columns {
+                for i in 0..index {
+                    elems[j].remove(i);
+                }
+            }
+            for j in 0..columns {
+                for i in index + amount..columns {
+                    elems[j].remove(i);
+                }
+            }
+            let mut c = CMatrix::zero(rows + 1, columns);
+            c.set_elements(elems);
+            Ok(c)
+        }
+
+        fn try_replace_row(&self, index: usize, row: Vec<T>) -> Result<CMatrix<T>, Error> {
+            let mut elems = self.get_elements();
+            let columns = self.get_columns();
+            let rows = self.get_rows();
+
+            if rows <= index {
+                return Err(Error(String::from("Wrong index value!")));
+            }
+            if row.len() != columns {
+                return Err(Error(String::from("Wrong row size!")));
+            }
+
+            elems.remove(index);
+            elems.insert(index, row);
+            let mut c = CMatrix::zero(rows + 1, columns);
+            c.set_elements(elems);
+            Ok(c)
+        }
+
+        fn try_replace_column(&self, index: usize, column: Vec<T>) -> Result<CMatrix<T>, Error> {
+            let mut elems = self.get_elements();
+            let columns = self.get_columns();
+            let rows = self.get_rows();
+
+            if columns <= index {
+                return Err(Error(String::from("Wrong index value!")));
+            }
+            if column.len() != columns {
+                return Err(Error(String::from("Wrong row size!")));
+            }
+            for i in 0..columns {
+                elems[i].remove(index);
+                elems[i].insert(index, column[i]);
+            }
+
+            let mut c = CMatrix::zero(rows + 1, columns);
+            c.set_elements(elems);
+            Ok(c)
+        }
+
         /// Returns rows amount
         fn get_rows(&self) -> usize;
         /// Returns columns amount
