@@ -2,6 +2,7 @@ pub mod matrix {
     extern crate num;
 
     use self::num::Num;
+    use std::cmp::{min, max};
     pub use std::ops::Add;
 
     use crate::{CMatrix, CMatrixTrait};
@@ -550,7 +551,7 @@ pub mod matrix {
                 return Err(Error(String::from("Wrong index value!")));
             }
 
-            for i in 0..columns {
+            for i in 0..self.get_rows() {
                 elems[i].remove(index);
             }
             let mut c = CMatrix::zero(self.get_rows(), columns - 1);
@@ -687,7 +688,7 @@ pub mod matrix {
             if column.len() != columns {
                 return Err(Error(String::from("Wrong row size!")));
             }
-            for i in 0..columns {
+            for i in 0..rows {
                 elems[i].remove(index);
                 elems[i].insert(index, column[i]);
             }
@@ -696,7 +697,35 @@ pub mod matrix {
             c.set_elements(elems);
             Ok(c)
         }
+        /// Checks if this elem contains to matrix
+        fn contains(&self, element: T) -> bool {
+            let elems = self.get_elements();
 
+            for i in elems {
+                if i.contains(&element) {
+                    return true;
+                }
+            }
+            false
+        }
+        /// Search elemnt's position in matrix. Return (-1, -1) if there is no this element in matrix
+        fn find(&self, element: T) -> (i32, i32) {
+            let elems = self.get_elements();
+            let mut c = 0;
+            let mut r = 0;
+
+            for i in elems {
+                c += 1;
+                if i.contains(&element) {
+                    r = i.iter().position(|&r| r == element).unwrap() as i32;
+                    break;
+                }
+                r = -1;
+            }
+
+
+            (r, c)
+        }
         /// Returns rows amount
         fn get_rows(&self) -> usize;
         /// Returns columns amount
