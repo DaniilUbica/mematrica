@@ -2,7 +2,6 @@ pub mod matrix {
     extern crate num;
 
     use self::num::Num;
-    use std::cmp::{min, max};
     pub use std::ops::Add;
 
     use crate::{CMatrix, CMatrixTrait};
@@ -33,36 +32,16 @@ pub mod matrix {
         {
             let r = self.get_rows();
             let c = self.get_columns();
+            let elems = self.get_elements();
+            let mut transposed = vec![vec![elems[0][0]; r]; c];
 
-            println!("{}", self.get_columns());
-
-            let v = self.get_elements();
-            let mut t = vec![];
-
-            for i in 0..r {
-                for j in 0..c {
-                    t.push(v[i][j].clone());
+            for (i, row) in elems.iter().enumerate() {
+                for (j, &item) in row.iter().enumerate() {
+                    transposed[j][i] = item;
                 }
             }
-
-            let mut q = vec![];
-            let mut a = vec![];
-
-            let mut i = 0;
-            let mut j = 0;
-            for _ in 0..c {
-                while i < t.len() {
-                    q.push(t[i].clone());
-                    i += c;
-                }
-                j += 1;
-                a.push(q.clone());
-                q.clear();
-                i = 0;
-                i += j;
-            }
-            self.set_elements(a);
-            self.check_size();
+        
+            self.set_elements(transposed);
         }
 
         /// Changes size of matrix, if it was formated. It calls automatically
@@ -80,34 +59,17 @@ pub mod matrix {
                 panic!("Can't multiplicate this matrices: self.columns != rhs.rows");
             }
 
-            let mut v = vec![];
-
-            for i in 0..self.get_rows() {
-                if v.len() < self.get_rows() {
-                    v.push(vec![]);
-                }
-
-                for _j in 0..rhs.get_columns() {
-                    if v[i].len() < rhs.get_columns() {
-                        v[i].push(T::zero());
-                    }
-                }
-            }
+            let mut result = CMatrix::zero(self.get_rows(), rhs.get_columns());
 
             for i in 0..self.get_rows() {
                 for j in 0..rhs.get_columns() {
                     for k in 0..self.get_columns() {
-                        v[i][j] = v[i][j].clone()
-                            + self.get_elements()[i][k].clone() * rhs.get_elements()[k][j].clone();
+                        result[i][j] = result[i][j] + self.get_elements()[i][k] * rhs.get_elements()[k][j];
                     }
                 }
             }
-
-            let mut c = CMatrix::one(self.get_rows(), rhs.get_columns());
-
-            c.set_elements(v);
-            self.check_size();
-            c
+        
+            result
         }
 
         /// Try to multiplicate matrices
@@ -121,35 +83,17 @@ pub mod matrix {
                 )));
             }
 
-            let mut v = vec![];
-
-            for i in 0..self.get_rows() {
-                if v.len() < self.get_rows() {
-                    v.push(vec![]);
-                }
-
-                for _j in 0..rhs.get_columns() {
-                    if v[i].len() < rhs.get_columns() {
-                        v[i].push(T::zero());
-                    }
-                }
-            }
+            let mut result = CMatrix::zero(self.get_rows(), rhs.get_columns());
 
             for i in 0..self.get_rows() {
                 for j in 0..rhs.get_columns() {
                     for k in 0..self.get_columns() {
-                        v[i][j] = v[i][j].clone()
-                            + self.get_elements()[i][k].clone() * rhs.get_elements()[k][j].clone();
+                        result[i][j] = result[i][j] + self.get_elements()[i][k] * rhs.get_elements()[k][j];
                     }
                 }
             }
-
-            let mut c = CMatrix::one(self.get_rows(), rhs.get_columns());
-
-            c.set_elements(v);
-            self.check_size();
-
-            Ok(c)
+        
+            Ok(result)
         }
 
         /// Counts determinant of matrix

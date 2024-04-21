@@ -416,20 +416,23 @@ mod tests {
         let m = CMatrix::from_element(2, 3, 2);
         let m2 = Matrix3::from_element(2);
 
-        assert_eq!((m.clone() * m2.clone())[(0, 0)], 12);
-        assert_eq!((m.clone() * m2.clone())[(0, 1)], 12);
-        assert_eq!((m.clone() * m2.clone())[(0, 2)], 12);
-        assert_eq!((m.clone() * m2.clone())[(1, 0)], 12);
-        assert_eq!((m.clone() * m2.clone())[(1, 1)], 12);
-        assert_eq!((m.clone() * m2.clone())[(1, 2)], 12);
+        let mul_result = m * m2;
+
+        assert_eq!(mul_result[(0, 0)], 12);
+        assert_eq!(mul_result[(0, 1)], 12);
+        assert_eq!(mul_result[(0, 2)], 12);
+        assert_eq!(mul_result[(1, 0)], 12);
+        assert_eq!(mul_result[(1, 1)], 12);
+        assert_eq!(mul_result[(1, 2)], 12);
     }
 
     #[test]
     fn cmatrix_transpose_test() {
-        let mut m = CMatrix::from_vec_as_rows(2, vec![1, 2, 3, 4]);
-        m.transpose();
+        let m = CMatrix::from_vec_as_rows(2, vec![1, 2, 3, 4]);
+        let mut m_clone = m.clone();
+        m_clone.transpose();
 
-        assert_eq!(m.get_columns(), m.get_rows());
+        assert_eq!(m.get_columns(), m_clone.get_rows());
     }
 
     #[test]
